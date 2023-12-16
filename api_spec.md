@@ -2,11 +2,11 @@
 
 ## Create user
 - Method: POST
-- Endpoint: /passenger/registers
+- Endpoint: /passengers/register
 - Request:
    - Request body of 
-     - full_name
-     - full_last_name
+     - first_name
+     - last_name
      - email_address 
      - phone_number
 - Response:
@@ -22,7 +22,7 @@ HTTP status code
     - HTTP status code
     - data: Page of tickets objects, each with the following properties:
       - id 
-      - date_of_bought
+      - date_of_purchase
       - date_of_flight
       - date_of_return
       - seat
