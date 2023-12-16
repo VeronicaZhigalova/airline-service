@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @Data
 @Entity(name = "passenger")
 @NoArgsConstructor
-public class Passenger {
+public class Passengers {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
