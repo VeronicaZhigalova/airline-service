@@ -16,11 +16,11 @@ public class Passengers {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String first_name;
+    private String firstName;
 
-    private String last_name;
+    private String lastName;
 
-    private String phone_number;
+    private String phoneNumber;
 
-    private String email_address;
+    private String emailAddress;
 }

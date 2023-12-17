@@ -18,17 +18,17 @@ public class Ticket {
 
     @JsonFormat(pattern = "yyyy-MM-dd")
     @DateTimeFormat(pattern = "yyyy-MM-dd")
-    private Integer date_of_purchase;
+    private Integer dateOfPurchase;
 
     @JsonFormat(pattern = "yyyy-MM-dd")
     @DateTimeFormat(pattern = "yyyy-MM-dd")
-    private Integer date_of_flight;
+    private Integer dateOfFlight;
 
     @JsonFormat(pattern = "yyyy-MM-dd")
     @DateTimeFormat(pattern = "yyyy-MM-dd")
-    private Integer date_of_return;
+    private Integer dateOfReturn;
 
     private Integer seat;
 
-    private Integer price_of_tickets;
+    private Integer priceOfTickets;
 }

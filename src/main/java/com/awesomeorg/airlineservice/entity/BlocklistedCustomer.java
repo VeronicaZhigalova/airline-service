@@ -16,6 +16,6 @@ public class BlocklistedCustomer {
 
     private String reason;
 
-    private Long customer_id;
+    private Long customerId;
 }
 

@@ -15,44 +15,44 @@ public class Reservation {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String flight_number;
+    private String flightNumber;
 
-    private String departure_airport;
+    private String departureAirport;
 
-    private String arrival_airport;
-
-    @JsonFormat(pattern = "yyyy-MM-dd")
-    @DateTimeFormat(pattern = "yyyy-MM-dd")
-    private LocalDate departure_time;
+    private String arrivalAirport;
 
     @JsonFormat(pattern = "yyyy-MM-dd")
     @DateTimeFormat(pattern = "yyyy-MM-dd")
-    private LocalDate arrival_time;
-
-    private String trip_type;
-
-    private String from_where;
-
-    private String to_where;
-
-    private Integer number_of_customer_seats;
-
-    private String class_of_flight;
+    private LocalDate departureTime;
 
     @JsonFormat(pattern = "yyyy-MM-dd")
     @DateTimeFormat(pattern = "yyyy-MM-dd")
-    private LocalDate depart_date;
+    private LocalDate arrivalTime;
+
+    private String tripType;
+
+    private String fromWhere;
+
+    private String toWhere;
+
+    private Integer numberOfCustomerSeats;
+
+    private String classOfFlight;
 
     @JsonFormat(pattern = "yyyy-MM-dd")
     @DateTimeFormat(pattern = "yyyy-MM-dd")
-    private LocalDate return_date;
+    private LocalDate departDate;
+
+    @JsonFormat(pattern = "yyyy-MM-dd")
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    private LocalDate returnDate;
 
     @Enumerated(EnumType.STRING)
-    private Status reservation_status;
+    private Status reservationStatus;
 
-    private Long seat_id;
+    private Long seatId;
 
-    private Long passenger_id;
+    private Long passengerId;
 
     public enum Status {
         PENDING,
