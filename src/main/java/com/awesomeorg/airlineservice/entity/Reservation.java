@@ -31,9 +31,9 @@ public class Reservation {
 
     private String tripType;
 
-    private String fromWhere;
+    private String departure;
 
-    private String toWhere;
+    private String destination;
 
     private Integer numberOfCustomerSeats;
 
@@ -41,7 +41,7 @@ public class Reservation {
 
     @JsonFormat(pattern = "yyyy-MM-dd")
     @DateTimeFormat(pattern = "yyyy-MM-dd")
-    private LocalDate departDate;
+    private LocalDate departureDate;
 
     @JsonFormat(pattern = "yyyy-MM-dd")
     @DateTimeFormat(pattern = "yyyy-MM-dd")
@@ -60,5 +60,11 @@ public class Reservation {
         CANCELLED,
         NOT_ARRIVED,
         FINISHED
+    }
+
+    public enum FlightClass {
+        ECONOMY,
+        BUSINESS,
+        FIRST;
     }
 }

@@ -5,20 +5,22 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
-@Entity(name = "baggage")
-public class Baggages {
+@Entity(name = "passengers")
+@NoArgsConstructor
+public class Passenger {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private Integer weight;
+    private String firstName;
 
-    private String size;
+    private String lastName;
 
-    private String typeOfBaggage;
+    private String phoneNumber;
 
-    private Long reservationId;
+    private String emailAddress;
 }

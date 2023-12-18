@@ -5,22 +5,26 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 @Data
-@Entity(name = "passenger")
-@NoArgsConstructor
-public class Passengers {
+@Entity(name = "baggages")
+public class Baggage {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String firstName;
+    private Integer weight;
 
-    private String lastName;
+    private String size;
 
-    private String phoneNumber;
+    private String typeOfBaggage;
 
-    private String emailAddress;
+    private Long reservationId;
+
+    public enum BaggageType {
+        CHECKED,
+        CARRY_ON,
+        EXTRA_BAGGAGE ;
+    }
 }

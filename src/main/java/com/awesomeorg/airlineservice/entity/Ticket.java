@@ -30,5 +30,5 @@ public class Ticket {
 
     private Integer seat;
 
-    private Integer priceOfTickets;
+    private Integer priceOfTicket;
 }

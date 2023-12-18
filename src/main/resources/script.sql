@@ -8,7 +8,7 @@ seat VARCHAR(10) NOT NULL,
 price_of_tickets DECIMAL(10, 2) NOT NULL
 );
 
-CREATE TABLE passenger
+CREATE TABLE passengers
 (
 id SERIAL PRIMARY KEY,
 first_name VARCHAR(255) NOT NULL,
@@ -47,7 +47,7 @@ CONSTRAINT fk_seat_id FOREIGN KEY (fk_seat_id) REFERENCES tickets (id) ON DELETE
 CONSTRAINT fk_passenger_id FOREIGN KEY (fk_passenger_id) REFERENCES passenger (id) ON DELETE CASCADE
 );
 
-CREATE TABLE baggage
+CREATE TABLE baggages
 (
 id SERIAL PRIMARY KEY,
 weight INTEGER NOT NULL,

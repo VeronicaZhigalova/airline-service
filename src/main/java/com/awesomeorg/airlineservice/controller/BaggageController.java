@@ -1,15 +1,15 @@
 package com.awesomeorg.airlineservice.controller;
 
 
-import com.awesomeorg.airlineservice.service.BaggagesService;
+import com.awesomeorg.airlineservice.service.BaggageService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/baggage")
+@RequestMapping("/baggages")
 @RequiredArgsConstructor
-public class BaggagesController {
+public class BaggageController {
 
-    private final BaggagesService baggagesService;
+    private final BaggageService baggageService;
 }
