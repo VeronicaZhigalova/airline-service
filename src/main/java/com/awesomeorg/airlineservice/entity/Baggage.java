@@ -18,7 +18,7 @@ public class Baggage {
 
     private String size;
 
-    private String typeOfBaggage;
+    private BaggageType typeOfBaggage;
 
     private Long reservationId;
 

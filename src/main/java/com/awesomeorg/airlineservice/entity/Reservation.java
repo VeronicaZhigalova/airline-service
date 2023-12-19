@@ -37,7 +37,7 @@ public class Reservation {
 
     private Integer numberOfCustomerSeats;
 
-    private String classOfFlight;
+    private FlightClass classOfFlight;
 
     @JsonFormat(pattern = "yyyy-MM-dd")
     @DateTimeFormat(pattern = "yyyy-MM-dd")
