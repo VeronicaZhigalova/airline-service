@@ -37,6 +37,7 @@ public class Reservation {
 
     private Integer numberOfCustomerSeats;
 
+    @Enumerated(EnumType.STRING)
     private FlightClass classOfFlight;
 
     @JsonFormat(pattern = "yyyy-MM-dd")

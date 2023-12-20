@@ -1,9 +1,6 @@
 package com.awesomeorg.airlineservice.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.Data;
 
 @Data
@@ -18,6 +15,7 @@ public class Baggage {
 
     private String size;
 
+    @Enumerated(EnumType.STRING)
     private BaggageType typeOfBaggage;
 
     private Long reservationId;
