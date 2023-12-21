@@ -22,7 +22,7 @@ CREATE TABLE blocklisted_customers
 id SERIAL PRIMARY KEY,
 reason VARCHAR(255) NOT NULL,
 customer_id INTEGER NOT NULL,
-CONSTRAINT fk_customer_id FOREIGN KEY (customer_id) REFERENCES passenger (id) ON DELETE CASCADE
+CONSTRAINT fk_customer_id FOREIGN KEY (customer_id) REFERENCES passengers (id) ON DELETE CASCADE
 );
 
 CREATE TABLE reservations
@@ -34,17 +34,17 @@ arrival_airport VARCHAR(50) NOT NULL DEFAULT NOW(),
 departure_time TIMESTAMP NOT NULL DEFAULT NOW(),
 arrival_time TIMESTAMP NOT NULL,
 trip_type VARCHAR(10) NOT NULL,
-from_where VARCHAR(50) NOT NULL,
-to_where VARCHAR(50) NOT NULL,
+departure VARCHAR(50) NOT NULL,
+destination VARCHAR(50) NOT NULL,
 number_of_customer_seats INTEGER NOT NULL,
 class_of_flight VARCHAR(20) NOT NULL,
-depart_date DATE NOT NULL DEFAULT NOW(),
+departure_date DATE NOT NULL DEFAULT NOW(),
 return_date DATE DEFAULT NOW(),
 reservation_status VARCHAR(20) NOT NULL,
 fk_seat_id INTEGER NOT NULL,
 fk_passenger_id INTEGER NOT NULL,
 CONSTRAINT fk_seat_id FOREIGN KEY (fk_seat_id) REFERENCES tickets (id) ON DELETE CASCADE,
-CONSTRAINT fk_passenger_id FOREIGN KEY (fk_passenger_id) REFERENCES passenger (id) ON DELETE CASCADE
+CONSTRAINT fk_passenger_id FOREIGN KEY (fk_passenger_id) REFERENCES passengers (id) ON DELETE CASCADE
 );
 
 CREATE TABLE baggages

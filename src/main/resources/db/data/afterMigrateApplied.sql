@@ -26,8 +26,9 @@ VALUES  ('Jane', 'Doe', '555-123-4567', 'jane.doe@example.com'),
 
 
 INSERT INTO reservations (flight_number, departure_airport, arrival_airport,
-departure_time, arrival_time, trip_type, departure, destination, number_of_customer_seats,
-class_of_flight, departure_date, return_date, reservation_status, seat_id, passenger_id)
+                             departure_time, arrival_time, trip_type, departure, destination,
+                             number_of_customer_seats, class_of_flight, departure_date, return_date,
+                             reservation_status, fk_seat_id, fk_passenger_id)
 VALUES ('ABC123', 'JFK', 'LAX', '2023-04-15 08:00:00', '2023-04-15 12:00:00', 'One-way', 'New York', 'Los Angeles',
        2, 'Business', '2023-04-15', NULL, 'Confirmed', 1, 1),
       ('XYZ456', 'LHR', 'CDG', '2023-06-20 15:30:00', '2023-06-20 18:30:00', 'Round-trip', 'London', 'Paris',
@@ -58,9 +59,9 @@ VALUES ('Fraudulent activity', 1),
        ('Disruptive behavior', 8),
        ('Unauthorized access to system', 10);
 
-INSERT INTO baggages (weight, size, type_of_baggage, reservation_id)
-VALUES (14, 'Large', 'Checked', 3),
-       (6, 'Medium', 'Carry-on', 5),
-       (11, 'Small', 'Checked', 7),
-       (4, 'Small', 'Carry-on', 9);
+INSERT INTO baggages (weight, size, type_of_baggage, fk_reservation_id)
+VALUES (14, 1, 'Checked', 3),
+       (6, 2, 'Carry-on', 5),
+       (11, 3, 'Checked', 7),
+       (4, 3, 'Carry-on', 9);
 
