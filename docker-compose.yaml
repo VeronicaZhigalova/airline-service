@@ -1,0 +1,19 @@
+services:
+  postgres:
+    container_name: airline_db
+    image: 'postgres:latest'
+    environment:
+      POSTGRES_DB: airline_db
+      POSTGRES_USER: airline_user
+      POSTGRES_PASSWORD: airline_pw
+    ports:
+      - 5432:5432
+  app:
+          container_name: airline_app
+          image: airline_app:latest
+          ports:
+            - 8080:8080
+          depends_on:
+            - postgres
+          environment:
+            - spring.datasource.url=jdbc:postgresql://postgres:5432/airline_db
