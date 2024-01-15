@@ -11,4 +11,6 @@ import org.springframework.web.bind.annotation.RestController;
 public class InternalReservationController {
 
     private final ReservationService reservationService;
+
+
 }
