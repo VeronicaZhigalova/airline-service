@@ -42,7 +42,7 @@ public class BaggageService {
         baggageRepository.deleteById(baggageId);
     }
 
-    public List<Baggage> getBaggageByReservation(LocalDate reservationId) {
+    public List<Baggage> getBaggageByReservation(Long reservationId) {
         // Retrieve a list of baggage by the given reservationId
         return baggageRepository.getBaggageByReservation(reservationId);
     }

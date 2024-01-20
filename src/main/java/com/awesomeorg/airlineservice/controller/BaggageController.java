@@ -33,7 +33,7 @@ public class BaggageController {
     }
 
     @GetMapping("/list/{reservationId}")
-    public ResponseEntity<List<Baggage>> listByReservation(@PathVariable LocalDate reservationId) {
+    public ResponseEntity<List<Baggage>> listByReservation(@PathVariable Long reservationId) {
         List<Baggage> baggageList = baggageService.getBaggageByReservation(reservationId);
         return ResponseEntity.ok(baggageList);
     }
