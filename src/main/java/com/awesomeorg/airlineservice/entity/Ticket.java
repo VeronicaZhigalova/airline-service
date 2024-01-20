@@ -1,5 +1,6 @@
 package com.awesomeorg.airlineservice.entity;
 
+import com.awesomeorg.airlineservice.protocol.TicketQuery;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -31,4 +32,12 @@ public class Ticket {
     private Integer seat;
 
     private Integer priceOfTicket;
+
+    public Ticket(final TicketQuery request) {
+        this.dateOfPurchase = request.getDateOfPurchase();
+        this.dateOfFlight = request.getDateOfFlight();
+        this.dateOfReturn = request.getDateOfReturn();
+        this.seat = request.getSeat();
+        this.priceOfTicket = request.getPriceOfTicket();
+    }
 }

@@ -1,12 +1,16 @@
 package com.awesomeorg.airlineservice.repository.specification;
 
 import com.awesomeorg.airlineservice.entity.Reservation;
-import com.awesomeorg.airlineservice.repository.InternalReservationQuery;
+import com.awesomeorg.airlineservice.protocol.InternalReservationQuery;
+import lombok.AllArgsConstructor;
+import lombok.Data;
 import org.springframework.data.jpa.domain.Specification;
 
 import java.util.ArrayList;
 import java.util.List;
 
+@Data
+@AllArgsConstructor
 public class ReservationSpecification {
 
     public static Specification<Reservation> createSpecification(final InternalReservationQuery query) {
@@ -114,4 +118,5 @@ public class ReservationSpecification {
     private static Specification<Reservation> withEqualsField(final ReservationSearchCriteria criteria) {
         return ((root, query, builder) -> builder.equal(root.get(criteria.getKey()), criteria.getValue()));
     }
+
 }

@@ -9,13 +9,13 @@ import org.springframework.stereotype.Repository;
 import java.time.LocalDate;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface BaggageRepository extends JpaRepository<Baggage, Long> {
 
-    @Query("SELECT b FROM Baggage b " +
-            "LEFT JOIN Reservation r ON b.id = r.ticketId AND r.reservationDate = :date " +
+    @Query("SELECT b FROM baggages b " +
+            "LEFT JOIN reservations r ON b.id = r.ticketId AND r.reservationDate = :date " +
             "WHERE r.id IS NULL")
-    List<Baggage> findFreeTicket(@Param("date") LocalDate reservationDate);
-
+    List<Baggage> getBaggageByReservation(@Param("date") LocalDate reservationDate);
 }

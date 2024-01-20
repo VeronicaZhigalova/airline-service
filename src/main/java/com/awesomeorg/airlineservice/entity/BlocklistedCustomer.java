@@ -1,14 +1,11 @@
 package com.awesomeorg.airlineservice.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.Data;
 
 @Data
 @Entity(name = "blocklisted_customers")
-public class BlocklistedCustomer {
+public class BlocklistedCustomer{
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -17,5 +14,6 @@ public class BlocklistedCustomer {
     private String reason;
 
     private Long customerId;
+
 }
 

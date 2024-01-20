@@ -5,7 +5,7 @@ import lombok.Data;
 import org.springframework.format.annotation.DateTimeFormat;
 
 @Data
-public class TicketQuery {
+public class UpdateTicketRequest {
 
     @JsonFormat(pattern = "yyyy-MM-dd")
     @DateTimeFormat(pattern = "yyyy-MM-dd")

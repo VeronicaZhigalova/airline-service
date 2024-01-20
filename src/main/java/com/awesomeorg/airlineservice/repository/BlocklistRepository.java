@@ -13,5 +13,4 @@ import org.springframework.data.jpa.repository.JpaRepository;
 public interface BlocklistRepository extends JpaRepository<BlocklistedCustomer, Long> {
 
     Optional<BlocklistedCustomer> findBlocklistedCustomerByCustomerId(@Param("customerId") Long customerId);
-
 }

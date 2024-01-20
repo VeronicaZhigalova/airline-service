@@ -1,4 +1,4 @@
-package com.awesomeorg.airlineservice.repository;
+package com.awesomeorg.airlineservice.protocol;
 
 import com.awesomeorg.airlineservice.entity.Reservation;
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -54,3 +54,4 @@ public class InternalReservationQuery {
 
     private Long passengerId;
 }
+

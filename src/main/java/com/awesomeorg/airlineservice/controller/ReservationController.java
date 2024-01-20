@@ -17,7 +17,7 @@ public class ReservationController {
 
     private final ReservationService reservationService;
 
-    @PostMapping
+    @PostMapping("/create")
     public ResponseEntity<Reservation> createReservation(@Valid @RequestBody final CreateReservationRequest request,
                                                          @RequestHeader(HeaderConstants.PASSENGER_ID_HEADER) Long passengerId) {
 
@@ -26,5 +26,13 @@ public class ReservationController {
                 .status(HttpStatus.CREATED)
                 .body(reservation);
 
+    }
+
+    @DeleteMapping("/cancel/{reservationId}")
+    public ResponseEntity<Void> cancelReservation(@PathVariable Long reservationId) {
+        reservationService.cancelReservation(reservationId);
+        return ResponseEntity
+                .noContent()
+                .build();
     }
 }

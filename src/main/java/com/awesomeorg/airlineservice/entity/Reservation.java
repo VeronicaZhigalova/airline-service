@@ -4,14 +4,12 @@ import com.awesomeorg.airlineservice.protocol.CreateReservationRequest;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDate;
 
 @Data
 @Entity(name = "reservations")
-@NoArgsConstructor
 public class Reservation {
 
     @Id
