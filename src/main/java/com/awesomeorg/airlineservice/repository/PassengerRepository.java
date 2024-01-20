@@ -14,4 +14,3 @@ public interface PassengerRepository extends JpaRepository<Passenger, Long> {
     @Query("SELECT p FROM passengers p WHERE p.emailAddress = :email")
     Optional<Passenger> findByEmail(@Param("email") String emailAddress);
 }
-

@@ -22,10 +22,11 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long>,
 
 
     @Query("SELECT r FROM reservations r " +
-            "LEFT JOIN tickets t ON r.ticketId = t.id " +
+            "LEFT JOIN r.ticket t " +
             "WHERE r.departure = :departure " +
             "AND r.destination = :destination " +
             "AND r.departureDate = :departureDate")
-    List<Reservation> findAllById(String departure, String destination, LocalDate departureDate);
-
+    List<Reservation> findReservationsByDepartureDestinationAndDate(@Param("departure") String departure,
+                                                                    @Param("destination") String destination,
+                                                                    @Param("departureDate") LocalDate departureDate);
 }

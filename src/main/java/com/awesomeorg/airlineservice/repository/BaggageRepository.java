@@ -15,7 +15,7 @@ import java.util.Optional;
 public interface BaggageRepository extends JpaRepository<Baggage, Long> {
 
     @Query("SELECT b FROM baggages b " +
-            "LEFT JOIN reservations r ON b.id = r.ticketId AND r.reservationDate = :date " +
+            "LEFT JOIN reservations r ON b.id = r.baggage.id AND r.dateOfPurchase= :date " +
             "WHERE r.id IS NULL")
     List<Baggage> getBaggageByReservation(@Param("date") LocalDate reservationDate);
 }

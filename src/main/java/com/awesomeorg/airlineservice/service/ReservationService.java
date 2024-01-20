@@ -116,6 +116,6 @@ public class ReservationService {
     }
 
     public List<Reservation> findReservation(String departure, String destination, LocalDate departureDate) {
-    return reservationRepository.findAllById(departure,destination,departureDate);
+    return reservationRepository.findReservationsByDepartureDestinationAndDate(departure,destination,departureDate);
     }
 }
