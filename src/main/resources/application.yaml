@@ -6,4 +6,9 @@ spring:
   flyway:
     locations: classpath:/db/tables, classpath:/db/data
 
+springdoc:
+  api-docs:
+    path: /docs
+  swagger-ui:
+    path: /docs/swagger-ui.html
 

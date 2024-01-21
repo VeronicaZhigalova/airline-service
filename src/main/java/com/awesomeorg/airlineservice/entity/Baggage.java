@@ -3,9 +3,11 @@ package com.awesomeorg.airlineservice.entity;
 import com.awesomeorg.airlineservice.protocol.CreateBaggageRequest;
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
 @Entity(name = "baggages")
+@NoArgsConstructor
 public class Baggage {
 
     @Id

@@ -41,10 +41,10 @@ class_of_flight VARCHAR(20) NOT NULL,
 departure_date DATE NOT NULL DEFAULT NOW(),
 return_date DATE DEFAULT NOW(),
 reservation_status VARCHAR(20) NOT NULL,
-fk_seat_id INTEGER NOT NULL,
-fk_passenger_id INTEGER NOT NULL,
-CONSTRAINT fk_seat_id FOREIGN KEY (fk_seat_id) REFERENCES tickets (id) ON DELETE CASCADE,
-CONSTRAINT fk_passenger_id FOREIGN KEY (fk_passenger_id) REFERENCES passengers (id) ON DELETE CASCADE
+seat_id INTEGER NOT NULL,
+passenger_id INTEGER NOT NULL,
+CONSTRAINT fk_seat_id FOREIGN KEY (seat_id) REFERENCES tickets (id) ON DELETE CASCADE,
+CONSTRAINT fk_passenger_id FOREIGN KEY (passenger_id) REFERENCES passengers (id) ON DELETE CASCADE
 );
 
 CREATE TABLE baggages
@@ -53,6 +53,6 @@ id SERIAL PRIMARY KEY,
 weight INTEGER NOT NULL,
 size INTEGER NOT NULL,
 type_of_baggage VARCHAR(50) NOT NULL,
-fk_reservation_id INTEGER,
-CONSTRAINT fk_reservation_id FOREIGN KEY(fk_reservation_id) REFERENCES reservations(id) ON DELETE CASCADE
+reservation_id INTEGER,
+CONSTRAINT fk_reservation_id FOREIGN KEY(reservation_id) REFERENCES reservations(id) ON DELETE CASCADE
 );

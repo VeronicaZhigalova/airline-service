@@ -28,27 +28,27 @@ VALUES  ('Jane', 'Doe', '555-123-4567', 'jane.doe@example.com'),
 INSERT INTO reservations (flight_number, departure_airport, arrival_airport,
                              departure_time, arrival_time, trip_type, departure, destination,
                              number_of_customer_seats, class_of_flight, departure_date, return_date,
-                             reservation_status, fk_seat_id, fk_passenger_id)
+                             reservation_status, seat_id, passenger_id)
 VALUES ('ABC123', 'JFK', 'LAX', '2023-04-15 08:00:00', '2023-04-15 12:00:00', 'One-way', 'New York', 'Los Angeles',
-       2, 'Business', '2023-04-15', NULL, 'Confirmed', 1, 1),
+       2, 'BUSINESS', '2023-04-15', NULL, 'CONFIRMED', 1, 1),
       ('XYZ456', 'LHR', 'CDG', '2023-06-20 15:30:00', '2023-06-20 18:30:00', 'Round-trip', 'London', 'Paris',
-       1, 'Economy', '2023-06-20', '2023-06-25', 'Pending', 3, 2),
+       1, 'ECONOMY', '2023-06-20', '2023-06-25', 'PENDING', 3, 2),
       ('DEF789', 'SFO', 'SEA', '2023-08-10 12:45:00', '2023-08-10 15:30:00', 'One-way', 'San Francisco', 'Seattle',
-       3, 'First Class', '2023-08-10', NULL, 'Confirmed', 5, 3),
+       3, 'FIRST', '2023-08-10', NULL, 'CONFIRMED', 5, 3),
        ('GHI987', 'HND', 'ICN', '2023-09-25 07:00:00', '2023-09-25 11:00:00', 'Round-trip', 'Tokyo', 'Seoul',
-       2, 'Business', '2023-09-25', '2023-09-30', 'Confirmed', 2, 4),
+       2, 'BUSINESS', '2023-09-25', '2023-09-30', 'CONFIRMED', 2, 4),
        ('JKL321', 'ORD', 'DFW', '2023-11-05 09:30:00', '2023-11-05 11:45:00', 'One-way', 'Chicago', 'Dallas',
-       1, 'Economy', '2023-11-05', NULL, 'Pending', 4, 5),
+       1, 'ECONOMY', '2023-11-05', NULL, 'PENDING', 4, 5),
        ('MNO654', 'SYD', 'AKL', '2024-01-15 14:00:00', '2024-01-15 18:30:00', 'Round-trip', 'Sydney', 'Auckland',
-       3, 'First Class', '2024-01-15', '2024-01-20', 'Confirmed', 6, 6),
+       3, 'FIRST', '2024-01-15', '2024-01-20', 'CONFIRMED', 6, 6),
        ('PQR321', 'ATL', 'MIA', '2024-03-08 11:15:00', '2024-03-08 14:00:00', 'One-way', 'Atlanta', 'Miami',
-       2, 'Business', '2024-03-08', NULL, 'Pending', 8, 7),
+       2, 'BUSINESS', '2024-03-08', NULL, 'PENDING', 8, 7),
        ('STU987', 'PEK', 'DEL', '2024-05-20 20:30:00', '2024-05-21 01:45:00', 'Round-trip', 'Beijing', 'Delhi',
-       1, 'Economy', '2024-05-20', '2024-05-25', 'Confirmed', 10, 8),
+       1, 'ECONOMY', '2024-05-20', '2024-05-25', 'CONFIRMED', 10, 8),
        ('VWX654', 'DXB', 'IST', '2024-07-12 08:45:00', '2024-07-12 13:00:00', 'One-way', 'Dubai', 'Istanbul',
-       3, 'First Class', '2024-07-12', NULL, 'Confirmed', 7, 9),
+       3, 'FIRST', '2024-07-12', NULL, 'CONFIRMED', 7, 9),
        ('YZA123', 'LAX', 'SFO', '2024-09-30 18:30:00', '2024-09-30 20:45:00', 'Round-trip', 'Los Angeles', 'San Francisco',
-       2, 'Business', '2024-09-30', '2024-10-05', 'Pending', 9, 10);
+       2, 'BUSINESS', '2024-09-30', '2024-10-05', 'PENDING', 9, 10);
 
 
 INSERT INTO blocklisted_customers (reason, customer_id)
@@ -59,7 +59,7 @@ VALUES ('Fraudulent activity', 1),
        ('Disruptive behavior', 8),
        ('Unauthorized access to system', 10);
 
-INSERT INTO baggages (weight, size, type_of_baggage, fk_reservation_id)
+INSERT INTO baggages (weight, size, type_of_baggage, reservation_id)
 VALUES (14, 1, 'Checked', 3),
        (6, 2, 'Carry-on', 5),
        (11, 3, 'Checked', 7),
