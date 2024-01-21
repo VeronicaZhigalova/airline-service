@@ -24,8 +24,7 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long>,
     @Query("SELECT r FROM reservations r " +
             "WHERE r.departure = :departure " +
             "AND r.destination = :destination " +
-            "AND r.departureDate = :departureDate " +
-            "AND r.fk_seat_id IS NULL")
+            "AND r.departureDate = :departureDate " )
     List<Reservation> findReservationsByDepartureDestinationAndDate(@Param("departure") String departure,
                                                                     @Param("destination") String destination,
                                                                     @Param("departureDate") LocalDate departureDate);

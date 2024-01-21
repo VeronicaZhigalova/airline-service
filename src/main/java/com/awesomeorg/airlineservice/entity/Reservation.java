@@ -52,7 +52,7 @@ public class Reservation {
     @Enumerated(EnumType.STRING)
     private Status reservationStatus;
 
-    private Long seatId;
+    private Long fkSeatId;
 
     private Long passengerId;
 
