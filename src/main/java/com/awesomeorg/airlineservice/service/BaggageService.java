@@ -3,9 +3,13 @@ package com.awesomeorg.airlineservice.service;
 import com.awesomeorg.airlineservice.entity.Baggage;
 import com.awesomeorg.airlineservice.exceptions.BaggageAlreadyExistsException;
 import com.awesomeorg.airlineservice.exceptions.BaggageNotFoundException;
+import com.awesomeorg.airlineservice.exceptions.TicketNotFoundException;
 import com.awesomeorg.airlineservice.protocol.CreateBaggageRequest;
 import com.awesomeorg.airlineservice.repository.BaggageRepository;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -17,23 +21,31 @@ import java.util.Optional;
 public class BaggageService {
 
     private final BaggageRepository baggageRepository;
+    private static final Logger log = LoggerFactory.getLogger(BaggageService.class);
 
     public Baggage createBaggage(CreateBaggageRequest request) {
-        // Check if baggage already exists
-        Long reservationId = request.getReservationId();
-        if (reservationId == null) {
-            throw new IllegalArgumentException("Reservation ID cannot be null");
-        }
-        final Optional<Baggage> optionalBaggage = baggageRepository.findById(reservationId);
-        if (optionalBaggage.isPresent()) {
-            throw new BaggageAlreadyExistsException("Baggage already exists");
-        }
+            try {
+                // Check if baggage already exists
+                Long reservationId = request.getReservationId();
+                if (reservationId == null) {
+                    throw new IllegalArgumentException("Baggage ID cannot be null");
+                }
+                final Optional<Baggage> optionalBaggage = baggageRepository.findById(reservationId);
+                if (optionalBaggage.isPresent()) {
+                    throw new BaggageAlreadyExistsException("Baggage already exists");
+                }
 
-        // If not exists, create and save the new baggage
-        final Baggage baggage = new Baggage(request);
-        return baggageRepository.save(baggage);
-    }
-
+                // If not exists, create and save the new baggage
+                final Baggage baggage = new Baggage(request);
+                return baggageRepository.save(baggage);
+            } catch (DataAccessException ex) {
+                log.error("DataAccessException occurred", ex);
+                throw new BaggageNotFoundException("Failed to create baggage");
+            } catch (Exception ex) {
+                log.error("Unexpected error occurred", ex);
+                throw new RuntimeException("An unexpected error occurred", ex);
+            }
+        }
     public void removeBaggage(Long baggageId) {
         // Check if baggage with the given baggageId exists
         Baggage baggage = getBaggageById(baggageId);

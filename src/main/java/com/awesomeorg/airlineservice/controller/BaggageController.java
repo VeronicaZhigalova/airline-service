@@ -22,7 +22,7 @@ public class BaggageController {
     @PostMapping("/register")
     public ResponseEntity<Baggage> register(@Valid @RequestBody final CreateBaggageRequest request) {
             final Baggage created = baggageService.createBaggage(request);
-            return ResponseEntity.status(HttpStatus.ACCEPTED)
+            return ResponseEntity.status(HttpStatus.CREATED)
                     .body(created);
     }
 

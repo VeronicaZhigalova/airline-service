@@ -1,5 +1,5 @@
 
-INSERT INTO tickets (date_of_purchase, date_of_flight, date_of_return, seat, price_of_tickets)
+INSERT INTO tickets (date_of_purchase, date_of_flight, date_of_return, seat, price_of_ticket)
 VALUES ('2023-01-15', '2024-03-16','2024-05-17','5','1500.60'),
        ('2023-02-20', '2024-04-18', '2024-06-19', '8', '1200.75'),
        ('2023-03-25', '2024-05-27', '2024-07-28', '12', '1800.90'),
@@ -60,8 +60,8 @@ VALUES ('Fraudulent activity', 1),
        ('Unauthorized access to system', 10);
 
 INSERT INTO baggages (weight, size, type_of_baggage, reservation_id)
-VALUES (14, 1, 'Checked', 3),
-       (6, 2, 'Carry-on', 5),
-       (11, 3, 'Checked', 7),
-       (4, 3, 'Carry-on', 9);
+VALUES (14, 1, 'CHECKED', 3),
+       (6, 2, 'CHECKED', 5),
+       (11, 3, 'CHECKED', 7),
+       (4, 3, 'CHECKED', 9);
 

@@ -16,7 +16,7 @@ public class Baggage {
 
     private Integer weight;
 
-    private String size;
+    private Integer size;
 
     @Enumerated(EnumType.STRING)
     private BaggageType typeOfBaggage;

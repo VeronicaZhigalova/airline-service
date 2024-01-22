@@ -4,11 +4,13 @@ import com.awesomeorg.airlineservice.entity.BlocklistedCustomer;
 import com.awesomeorg.airlineservice.entity.Passenger;
 import com.awesomeorg.airlineservice.exceptions.CustomerAlreadyExistsException;
 import com.awesomeorg.airlineservice.exceptions.PassengerNotFoundException;
+import com.awesomeorg.airlineservice.exceptions.TicketNotFoundException;
 import com.awesomeorg.airlineservice.protocol.CreatePassengerRequest;
 import com.awesomeorg.airlineservice.protocol.UpdatePassengerRequest;
 import com.awesomeorg.airlineservice.repository.BlocklistRepository;
 import com.awesomeorg.airlineservice.repository.PassengerRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -21,12 +23,19 @@ public class PassengerService {
     private final BlocklistRepository blocklistRepository;
 
     public Passenger createPassenger(CreatePassengerRequest request) {
-        final Optional<Passenger> optionalPassenger = passengerRepository.findByEmail(request.getEmailAddress());
-        if (optionalPassenger.isPresent()) {
-            throw new CustomerAlreadyExistsException("Passenger already exists with this email");
-        }
-        final Passenger passenger = new Passenger(request);
-        return passengerRepository.save(passenger);
+        try {
+            final Optional<Passenger> optionalPassenger = passengerRepository.findByEmail(request.getEmailAddress());
+            if (optionalPassenger.isPresent()) {
+                throw new CustomerAlreadyExistsException("Passenger already exists with this email");
+            }
+            final Passenger passenger = new Passenger(request);
+            return passengerRepository.save(passenger);
+        } catch (DataAccessException ex) {
+        throw new PassengerNotFoundException("Failed to create passenger");
+    } catch (Exception ex) {
+        // Handle other exceptions
+        throw new RuntimeException("An unexpected error occurred", ex);
+    }
     }
 
     public Optional<BlocklistedCustomer> findBlockListedPassenger(final Long passengerId) {

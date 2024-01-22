@@ -5,7 +5,7 @@ date_of_purchase DATE NOT NULL,
 date_of_flight DATE NOT NULL,
 date_of_return DATE NOT NULL,
 seat VARCHAR(10) NOT NULL,
-price_of_tickets DECIMAL(10, 2) NOT NULL
+price_of_ticket DECIMAL(10, 2) NOT NULL
 );
 
 CREATE TABLE passengers

@@ -4,20 +4,22 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 import org.springframework.format.annotation.DateTimeFormat;
 
+import java.time.LocalDate;
+
 @Data
 public class UpdateTicketRequest {
 
     @JsonFormat(pattern = "yyyy-MM-dd")
     @DateTimeFormat(pattern = "yyyy-MM-dd")
-    private Integer dateOfPurchase;
+    private LocalDate dateOfPurchase;
 
     @JsonFormat(pattern = "yyyy-MM-dd")
     @DateTimeFormat(pattern = "yyyy-MM-dd")
-    private Integer dateOfFlight;
+    private LocalDate dateOfFlight;
 
     @JsonFormat(pattern = "yyyy-MM-dd")
     @DateTimeFormat(pattern = "yyyy-MM-dd")
-    private Integer dateOfReturn;
+    private LocalDate dateOfReturn;
 
     private Integer seat;
 

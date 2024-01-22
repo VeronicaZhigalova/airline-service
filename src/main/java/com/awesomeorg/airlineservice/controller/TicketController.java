@@ -6,16 +6,17 @@ import com.awesomeorg.airlineservice.protocol.UpdateTicketRequest;
 import com.awesomeorg.airlineservice.service.TicketService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
 @RestController
 @RequestMapping("/tickets")
 @RequiredArgsConstructor
 public class TicketController {
+
 
     private final TicketService ticketService;
 
@@ -32,15 +33,21 @@ public class TicketController {
     }
 
     @PostMapping("/create")
-    public ResponseEntity<Ticket> createTicket(@Valid @RequestBody TicketQuery request) {
-        Ticket createdTicket = ticketService.createTicket(request);
-        return ResponseEntity.status(HttpStatus.CREATED).body(createdTicket);
+    public ResponseEntity<Ticket> createTicket(@Valid @RequestBody final TicketQuery request) {
+        final Ticket createdTicket = ticketService.createTicket(request);
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(createdTicket);
     }
 
     @PutMapping("/update/{ticketId}")
-    public ResponseEntity<Ticket> updateTicket(@PathVariable Long ticketId, @Valid @RequestBody UpdateTicketRequest request) {
+    public ResponseEntity<Ticket> updateTicket(@PathVariable Long ticketId,
+                                               @Valid @RequestBody UpdateTicketRequest request) {
+        if (ticketId == null) {
+            throw new IllegalArgumentException("Ticket ID cannot be null");
+        }
         Ticket updatedTicket = ticketService.updateTicket(ticketId, request);
-        return ResponseEntity.status(HttpStatus.OK).body(updatedTicket);
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(updatedTicket);
     }
 
     @DeleteMapping("/delete/{ticketId}")
@@ -49,4 +56,5 @@ public class TicketController {
         return ResponseEntity.noContent().build();
     }
 }
+
 

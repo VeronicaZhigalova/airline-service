@@ -10,10 +10,11 @@ public class CreateBaggageRequest {
 
     private Integer weight;
 
-    private String size;
+    private Integer size;
 
     @Enumerated(EnumType.STRING)
     private Baggage.BaggageType typeOfBaggage;
 
     private Long reservationId;
+
 }
