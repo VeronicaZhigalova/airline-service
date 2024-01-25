@@ -24,6 +24,9 @@ public class TicketService {
     private final TicketRepository ticketRepository;
 
     public Optional<Ticket> findTicketById(final Long ticketId) {
+        if (ticketId == null) {
+            return Optional.empty();
+        }
         return ticketRepository.findById(ticketId);
     }
 

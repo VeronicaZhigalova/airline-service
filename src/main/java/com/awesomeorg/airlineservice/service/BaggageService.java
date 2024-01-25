@@ -25,14 +25,14 @@ public class BaggageService {
 
     public Baggage createBaggage(CreateBaggageRequest request) {
             try {
-                // Check if baggage already exists
+                // Check if baggage already exists for the given reservation
                 Long reservationId = request.getReservationId();
                 if (reservationId == null) {
-                    throw new IllegalArgumentException("Baggage ID cannot be null");
+                    throw new IllegalArgumentException("Reservation ID cannot be null");
                 }
-                final Optional<Baggage> optionalBaggage = baggageRepository.findById(reservationId);
+                final Optional<Baggage> optionalBaggage = baggageRepository.findByReservationId(reservationId);
                 if (optionalBaggage.isPresent()) {
-                    throw new BaggageAlreadyExistsException("Baggage already exists");
+                    throw new BaggageAlreadyExistsException("Baggage already exists for the given reservation");
                 }
 
                 // If not exists, create and save the new baggage
@@ -46,6 +46,7 @@ public class BaggageService {
                 throw new RuntimeException("An unexpected error occurred", ex);
             }
         }
+
     public void removeBaggage(Long baggageId) {
         // Check if baggage with the given baggageId exists
         Baggage baggage = getBaggageById(baggageId);
@@ -58,6 +59,7 @@ public class BaggageService {
         // Retrieve a list of baggage by the given reservationId
         return baggageRepository.getBaggageByReservation(reservationId);
     }
+
 
     public Baggage getBaggageById(Long baggageId) {
         // Retrieve a baggage by the given baggageId

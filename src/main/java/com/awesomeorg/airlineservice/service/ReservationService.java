@@ -10,10 +10,12 @@ import com.awesomeorg.airlineservice.protocol.InternalReservationQuery;
 import com.awesomeorg.airlineservice.repository.ReservationRepository;
 import com.awesomeorg.airlineservice.repository.specification.ReservationSpecification;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -34,9 +36,9 @@ public class ReservationService {
             throw new BadRequestException(String.format("Passenger %d is blocklisted", passengerId));
         }
 
-        final Optional<Ticket> optionalTicket = ticketService.findTicketById(request.getSeatId());
+        final Optional<Ticket> optionalTicket = ticketService.findTicketById(request.getTicketId());
         if (optionalTicket.isEmpty()) {
-            throw new NotFoundException(String.format("Ticket %d not found", request.getSeatId()));
+            throw new NotFoundException(String.format("Ticket %d not found", request.getTicketId()));
         }
 
         final Ticket ticket = optionalTicket.get();
@@ -56,27 +58,33 @@ public class ReservationService {
         query.setDepartureDate(request.getDepartureDate());
 
         final Page<Reservation> reservations = findReservations(query,Pageable.unpaged());
-        if (!reservations.isEmpty()) {
+        if (reservations.getTotalElements() > 0) {
             throw new BadRequestException(String.format("Passenger %d already has a reservation for the %s",
                     passengerId, request.getFlightNumber()));
         }
 
+        try{
         final Reservation reservation = new Reservation(request, passengerId);
-
         return reservationRepository.save(reservation);
+    } catch (Exception e){
+            throw new RuntimeException("Failed to save reservation", e);
+        }
     }
+
 
 
     public void cancelReservation(Long reservationId) {
         // Check if reservation with the given reservationId exists
         Optional<Reservation> reservation = findReservation(reservationId);
 
-        // If exists, delete the reservation
-        if (reservation.isPresent()) {
-            reservationRepository.deleteById(reservationId);
-        } else {
-            throw new ReservationNotFoundException("Reservation not found with ID: " + reservationId);
+        // If not exists, delete the reservation
+        if (reservation.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Reservation not found with ID: " + reservationId);
         }
+
+
+        reservationRepository.deleteById(reservationId);
+
     }
 
 

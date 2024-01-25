@@ -24,12 +24,12 @@ public class Reservation {
 
     private String arrivalAirport;
 
-    @JsonFormat(pattern = "yyyy-MM-dd")
-    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDate departureTime;
 
-    @JsonFormat(pattern = "yyyy-MM-dd")
-    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDate arrivalTime;
 
     private String tripType;
@@ -54,8 +54,10 @@ public class Reservation {
     @Enumerated(EnumType.STRING)
     private Status reservationStatus;
 
-    private Long seatId;
+    @Column(name="fk_ticket_id")
+    private Long ticketId;
 
+    @Column(name = "fk_passenger_id")
     private Long passengerId;
 
     public Reservation(final CreateReservationRequest request,
@@ -73,6 +75,7 @@ public class Reservation {
         this.departureDate = request.getDepartureDate();
         this.returnDate = request.getReturnDate();
         this.reservationStatus = Status.PENDING;
+        this.ticketId = request.getTicketId();
         this.passengerId = passengerId;
 
     }

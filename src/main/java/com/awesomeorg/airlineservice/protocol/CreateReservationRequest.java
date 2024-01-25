@@ -17,12 +17,12 @@ public class CreateReservationRequest {
 
     private String arrivalAirport;
 
-    @JsonFormat(pattern = "yyyy-MM-dd")
-    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDate departureTime;
 
-    @JsonFormat(pattern = "yyyy-MM-dd")
-    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDate arrivalTime;
 
     private String tripType;
@@ -44,6 +44,6 @@ public class CreateReservationRequest {
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private LocalDate returnDate;
 
-    private Long seatId;
+    private Long ticketId;
 
 }

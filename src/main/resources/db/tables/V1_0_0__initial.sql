@@ -30,22 +30,23 @@ CREATE TABLE reservations
 id SERIAL PRIMARY KEY,
 flight_number VARCHAR(20) NOT NULL,
 departure_airport VARCHAR(50) NOT NULL,
-arrival_airport VARCHAR(50) NOT NULL DEFAULT NOW(),
-departure_time TIMESTAMP NOT NULL DEFAULT NOW(),
+arrival_airport VARCHAR(50) NOT NULL,
+departure_time TIMESTAMP NOT NULL,
 arrival_time TIMESTAMP NOT NULL,
 trip_type VARCHAR(10) NOT NULL,
 departure VARCHAR(50) NOT NULL,
 destination VARCHAR(50) NOT NULL,
 number_of_customer_seats INTEGER NOT NULL,
 class_of_flight VARCHAR(20) NOT NULL,
-departure_date DATE NOT NULL DEFAULT NOW(),
-return_date DATE DEFAULT NOW(),
+departure_date DATE NOT NULL,
+return_date DATE,
 reservation_status VARCHAR(20) NOT NULL,
-seat_id INTEGER NOT NULL,
-passenger_id INTEGER NOT NULL,
-CONSTRAINT fk_seat_id FOREIGN KEY (seat_id) REFERENCES tickets (id) ON DELETE CASCADE,
-CONSTRAINT fk_passenger_id FOREIGN KEY (passenger_id) REFERENCES passengers (id) ON DELETE CASCADE
+fk_ticket_id INTEGER NOT NULL,
+fk_passenger_id INTEGER NOT NULL,
+CONSTRAINT fk_ticket_id FOREIGN KEY (fk_ticket_id) REFERENCES tickets (id) ON DELETE CASCADE,
+CONSTRAINT fk_passenger_id FOREIGN KEY (fk_passenger_id) REFERENCES passengers (id) ON DELETE CASCADE
 );
+
 
 CREATE TABLE baggages
 (
