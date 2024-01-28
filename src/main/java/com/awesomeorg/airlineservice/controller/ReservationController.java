@@ -6,15 +6,11 @@ import com.awesomeorg.airlineservice.exceptions.NotFoundException;
 import com.awesomeorg.airlineservice.exceptions.ReservationNotFoundException;
 import com.awesomeorg.airlineservice.protocol.CreateReservationRequest;
 import com.awesomeorg.airlineservice.service.ReservationService;
-import com.awesomeorg.airlineservice.util.HeaderConstants;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ResponseStatusException;
-
-import static org.springframework.http.ResponseEntity.*;
 
 @RestController
 @RequestMapping("/reservations")
@@ -23,7 +19,7 @@ public class ReservationController {
 
     private final ReservationService reservationService;
 
-    @PostMapping("/create")
+    @PostMapping()
     public ResponseEntity<Reservation> createReservation(@Valid @RequestBody final CreateReservationRequest request,
                                                          @RequestHeader("passenger-id") Long passengerId) {
         try {
@@ -43,15 +39,14 @@ public class ReservationController {
     }
 
 
-    @DeleteMapping("/cancel/{reservationId}")
-    public ResponseEntity<Void> cancelReservation(@PathVariable Long reservationId) {
+    @DeleteMapping("/{reservationId}")
+    public ResponseEntity<Void> deleteReservation(@PathVariable Long reservationId) {
         try {
             reservationService.cancelReservation(reservationId);
             return ResponseEntity.noContent().build();
         } catch (ReservationNotFoundException e) {
             return ResponseEntity.notFound().build();
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
 }
+

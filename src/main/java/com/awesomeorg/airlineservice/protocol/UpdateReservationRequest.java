@@ -2,12 +2,14 @@ package com.awesomeorg.airlineservice.protocol;
 
 import com.awesomeorg.airlineservice.entity.Reservation;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import jakarta.persistence.Column;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import lombok.Data;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Data
 public class UpdateReservationRequest {
@@ -18,13 +20,13 @@ public class UpdateReservationRequest {
 
     private String arrivalAirport;
 
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(shape = JsonFormat.Shape.STRING,pattern = "yyyy-MM-dd HH:mm:ss")
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    private LocalDate departureTime;
+    private LocalDateTime departureTime;
 
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(shape = JsonFormat.Shape.STRING,pattern = "yyyy-MM-dd HH:mm:ss")
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    private LocalDate arrivalTime;
+    private LocalDateTime arrivalTime;
 
     private String tripType;
 
@@ -37,14 +39,20 @@ public class UpdateReservationRequest {
     @Enumerated(EnumType.STRING)
     private Reservation.FlightClass classOfFlight;
 
-    @JsonFormat(pattern = "yyyy-MM-dd")
+    @JsonFormat(shape = JsonFormat.Shape.STRING,pattern = "yyyy-MM-dd")
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private LocalDate departureDate;
 
-    @JsonFormat(pattern = "yyyy-MM-dd")
+    @JsonFormat(shape = JsonFormat.Shape.STRING,pattern = "yyyy-MM-dd")
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private LocalDate returnDate;
 
     private Long ticketId;
+
+    @Enumerated(EnumType.STRING)
+    private Reservation.Status reservationStatus;
+
+    @Column(name = "fk_passenger_id")
+    private Long passengerId;
 
 }

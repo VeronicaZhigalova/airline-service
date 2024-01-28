@@ -24,13 +24,13 @@ public class PassengerController {
                 .body(created);
     }
 
-    @DeleteMapping("/delete/{passengerId}")
+    @DeleteMapping("/{passengerId}")
     public ResponseEntity<Void> deletePassenger(@PathVariable Long passengerId) {
         passengerService.deletePassenger(passengerId);
         return ResponseEntity.noContent().build();
     }
 
-    @PutMapping("/update/{passengerId}")
+    @PutMapping("/{passengerId}")
     public ResponseEntity<Passenger> updatePassenger(@PathVariable Long passengerId,
                                                      @Valid @RequestBody UpdatePassengerRequest request) {
         Passenger passenger = passengerService.updatePassenger(passengerId, request);

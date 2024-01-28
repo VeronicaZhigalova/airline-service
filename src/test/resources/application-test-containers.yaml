@@ -1,0 +1,8 @@
+spring:
+  datasource:
+    url: jdbc:tc:postgresql:16:///airline_db-test
+    driver-class-name: org.testcontainers.jdbc.ContainerDatabaseDriver
+    flyway:
+      url: jdbc:tc:postgresql:16:///airline_db-test
+      locations: classpath:/db/tables, classpath:/db/test-data
+      clean-disabled: false

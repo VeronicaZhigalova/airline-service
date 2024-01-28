@@ -1,20 +1,20 @@
 package com.awesomeorg.airlineservice.service;
 
-import com.awesomeorg.airlineservice.entity.BlocklistedCustomer;
 import com.awesomeorg.airlineservice.entity.Reservation;
-import com.awesomeorg.airlineservice.entity.Ticket;
-import com.awesomeorg.airlineservice.exceptions.*;
+import com.awesomeorg.airlineservice.exceptions.BadRequestException;
+import com.awesomeorg.airlineservice.exceptions.NotFoundException;
+import com.awesomeorg.airlineservice.exceptions.ReservationNotFoundException;
 import com.awesomeorg.airlineservice.protocol.CreateReservationRequest;
-import com.awesomeorg.airlineservice.protocol.UpdateReservationRequest;
 import com.awesomeorg.airlineservice.protocol.InternalReservationQuery;
+import com.awesomeorg.airlineservice.protocol.UpdateReservationRequest;
 import com.awesomeorg.airlineservice.repository.ReservationRepository;
 import com.awesomeorg.airlineservice.repository.specification.ReservationSpecification;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
-import org.springframework.stereotype.Service;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDate;
@@ -29,49 +29,53 @@ public class ReservationService {
     private final PassengerService passengerService;
     private final TicketService ticketService;
 
-    public Reservation createReservation(final CreateReservationRequest request,
-                                         final Long passengerId) throws BadRequestException, NotFoundException {
-        final Optional<BlocklistedCustomer> optionalBlocklistedCustomer = passengerService.findBlockListedPassenger(passengerId);
-        if (optionalBlocklistedCustomer.isPresent()) {
-            throw new BadRequestException(String.format("Passenger %d is blocklisted", passengerId));
+        public Reservation createReservation(CreateReservationRequest request, Long passengerId) {
+            try {
+                validateCreateReservation(request, passengerId);
+                Reservation reservation = new Reservation(request, passengerId);
+                return reservationRepository.save(reservation);
+            } catch (Exception e) {
+                throw new RuntimeException("Failed to create reservation", e);
+            }
         }
 
-        final Optional<Ticket> optionalTicket = ticketService.findTicketById(request.getTicketId());
-        if (optionalTicket.isEmpty()) {
-            throw new NotFoundException(String.format("Ticket %d not found", request.getTicketId()));
+        private void validateCreateReservation(CreateReservationRequest request, Long passengerId) {
+            validateBlocklistedCustomer(passengerId);
+            findAndValidateTicket(request.getTicketId(), request.getNumberOfCustomerSeats());
+            checkExistingReservations(passengerId, request);
         }
 
-        final Ticket ticket = optionalTicket.get();
-        if (ticket.getSeat() > request.getNumberOfCustomerSeats()) {
-            throw new BadRequestException("Ticket can't fit so many guests");
+        private void validateBlocklistedCustomer(Long passengerId) {
+            passengerService.findBlockListedPassenger(passengerId)
+                    .ifPresent(blocklistedCustomer -> {
+                        throw new BadRequestException(String.format("Passenger %d is blocklisted", passengerId));
+                    });
         }
 
-        final InternalReservationQuery query = new InternalReservationQuery();
-        query.setPassengerId(passengerId);
-        query.setArrivalAirport(request.getArrivalAirport());
-        query.setArrivalTime(request.getArrivalTime());
-        query.setDeparture(request.getDeparture());
-        query.setDestination(request.getDestination());
-        query.setClassOfFlight(request.getClassOfFlight());
-        query.setDepartureAirport(request.getDepartureAirport());
-        query.setFlightNumber(request.getFlightNumber());
-        query.setDepartureDate(request.getDepartureDate());
-
-        final Page<Reservation> reservations = findReservations(query,Pageable.unpaged());
-        if (reservations.getTotalElements() > 0) {
-            throw new BadRequestException(String.format("Passenger %d already has a reservation for the %s",
-                    passengerId, request.getFlightNumber()));
+        private void findAndValidateTicket(Long ticketId, Integer numberOfCustomerSeats) {
+            ticketService.findTicketById(ticketId)
+                    .filter(ticket -> ticket.getSeat() <= numberOfCustomerSeats)
+                    .orElseThrow(() -> new NotFoundException(String.format("Ticket %d not found or can't fit so many guests", ticketId)));
         }
 
-        try{
-        final Reservation reservation = new Reservation(request, passengerId);
-        return reservationRepository.save(reservation);
-    } catch (Exception e){
-            throw new RuntimeException("Failed to save reservation", e);
+        private void checkExistingReservations(Long passengerId, CreateReservationRequest request) {
+            InternalReservationQuery query = new InternalReservationQuery();
+            query.setPassengerId(passengerId);
+            query.setArrivalAirport(request.getArrivalAirport());
+            query.setArrivalTime(LocalDate.from(request.getArrivalTime()));
+            query.setDeparture(request.getDeparture());
+            query.setDestination(request.getDestination());
+            query.setClassOfFlight(request.getClassOfFlight());
+            query.setDepartureAirport(request.getDepartureAirport());
+            query.setFlightNumber(request.getFlightNumber());
+            query.setDepartureDate(request.getDepartureDate());
+
+            Page<Reservation> reservationsPage = findReservations(query, Pageable.unpaged());
+
+            if (reservationsPage.getTotalElements() > 0) {
+                throw new BadRequestException(String.format("Passenger %d already has a reservation for the %s", passengerId, request.getFlightNumber()));
+            }
         }
-    }
-
-
 
     public void cancelReservation(Long reservationId) {
         // Check if reservation with the given reservationId exists
@@ -84,24 +88,30 @@ public class ReservationService {
 
 
         reservationRepository.deleteById(reservationId);
-
     }
 
 
-    public Page<Reservation> findReservations(final InternalReservationQuery query,
-                                              final Pageable pageRequest) {
-        final Specification<Reservation> specification = ReservationSpecification.createSpecification(query);
-        return reservationRepository.findAll(specification, pageRequest);
-    }
+        public Page<Reservation> findReservations(InternalReservationQuery query, Pageable pageRequest) {
+            Specification<Reservation> specification = ReservationSpecification.createSpecification(query);
+            return reservationRepository.findAll(specification, pageRequest);
+        }
 
-    public Optional<Reservation> findReservation(Long reservationId) {
-        return reservationRepository.findById(reservationId);
-    }
+        public Optional<Reservation> findReservation(Long reservationId) {
+            return reservationRepository.findById(reservationId);
+        }
 
-    public Reservation updateReservation(Long reservationId, UpdateReservationRequest request, Long passengerId) {
-        Optional<Reservation> optionalReservation = findReservation(reservationId);
-        if (optionalReservation.isPresent()) {
-            Reservation reservation = optionalReservation.get();
+        public Reservation updateReservation(Long reservationId, UpdateReservationRequest request, Long passengerId) {
+            Optional<Reservation> optionalReservation = findReservation(reservationId);
+            if (optionalReservation.isPresent()) {
+                Reservation reservation = optionalReservation.get();
+                updateReservationFields(reservation, request, passengerId);
+                return reservationRepository.save(reservation);
+            } else {
+                throw new ReservationNotFoundException("Reservation not found with ID: " + reservationId);
+            }
+        }
+
+        private void updateReservationFields(Reservation reservation, UpdateReservationRequest request, Long passengerId) {
             reservation.setFlightNumber(request.getFlightNumber());
             reservation.setDepartureAirport(request.getDepartureAirport());
             reservation.setArrivalAirport(request.getArrivalAirport());
@@ -115,15 +125,9 @@ public class ReservationService {
             reservation.setDepartureDate(request.getDepartureDate());
             reservation.setReservationStatus(Reservation.Status.PENDING);
             reservation.setPassengerId(passengerId);
-            return reservationRepository.save(reservation);
+        }
 
-
-        } else {
-            throw new ReservationNotFoundException("Reservation not found with ID: " + reservationId);
+        public List<Reservation> findReservation(String departure, String destination, LocalDate departureDate) {
+            return reservationRepository.findReservationsByDepartureDestinationAndDate(departure, destination, departureDate);
         }
     }
-
-    public List<Reservation> findReservation(String departure, String destination, LocalDate departureDate) {
-    return reservationRepository.findReservationsByDepartureDestinationAndDate(departure,destination,departureDate);
-    }
-}

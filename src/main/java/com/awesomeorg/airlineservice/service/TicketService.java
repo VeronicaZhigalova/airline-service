@@ -49,6 +49,7 @@ public class TicketService {
 
             // If not exists, create and save the new ticket
             final Ticket ticket = new Ticket(request);
+            ticket.setDateOfFlight(request.getDateOfFlight());
             return ticketRepository.save(ticket);
 
         } catch (DataAccessException ex) {

@@ -25,12 +25,12 @@ public class InternalPassengerController {
         return ResponseEntity.status(HttpStatus.CREATED).body(passenger);
     }
 
-    @GetMapping("/find/{passengerId}")
-    public ResponseEntity<Passenger> findPassenger(@PathVariable Long passengerId) {
-        Optional<Passenger> passenger = passengerService.findPassengerById(passengerId);
-        return passenger.map(value -> ResponseEntity.ok().body(value))
-                .orElseGet(() -> ResponseEntity.notFound().build());
-    }
+//    @GetMapping("/find/{passengerId}")
+//    public ResponseEntity<Passenger> findPassenger(@PathVariable Long passengerId) {
+//        Optional<Passenger> passenger = passengerService.findPassengerById(passengerId);
+//        return passenger.map(value -> ResponseEntity.ok().body(value))
+//                .orElseGet(() -> ResponseEntity.notFound().build());
+//    }
 
     @PutMapping("/update/{passengerId}")
     public ResponseEntity<Passenger> updatePassenger(@PathVariable Long passengerId,

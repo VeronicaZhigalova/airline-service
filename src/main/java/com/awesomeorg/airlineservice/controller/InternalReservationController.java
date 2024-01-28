@@ -30,7 +30,7 @@ public class InternalReservationController {
                 .body(reservation);
     }
 
-    @GetMapping("/find/{reservationId}")
+    @GetMapping("/{reservationId})")
     public ResponseEntity<Reservation> findReservation(@PathVariable Long reservationId) {
         Optional<Reservation> reservation = reservationService.findReservation(reservationId);
         return reservation.map(value -> ResponseEntity.ok().body(value))
@@ -38,7 +38,7 @@ public class InternalReservationController {
     }
 
 
-    @PutMapping("/update/{reservationId}")
+    @PutMapping("{reservationId}")
     public ResponseEntity<Reservation> updateReservation(@PathVariable Long reservationId,
                                                          @Valid @RequestBody UpdateReservationRequest request,
                                                          @PathVariable Long passengerId) {
@@ -48,13 +48,14 @@ public class InternalReservationController {
                 .body(updatedReservation);
     }
 
-    @DeleteMapping("/cancel/{reservationId}")
-    public ResponseEntity<Void> cancelReservation(@PathVariable Long reservationId) {
+    @DeleteMapping("/{reservationId}")
+    public ResponseEntity<Void> deleteReservation(@PathVariable Long reservationId) {
         reservationService.cancelReservation(reservationId);
         return ResponseEntity.noContent().build();
     }
 
-    @GetMapping("/search")
+
+    @GetMapping()
     public ResponseEntity<List<Reservation>> searchReservations(@RequestParam(required = false) String departure,
                                                                 @RequestParam(required = false) String destination,
                                                                 @RequestParam(required = false) LocalDate departureDate) {
