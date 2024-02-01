@@ -3,119 +3,115 @@ package com.awesomeorg.airlineservice.integration_tests;
 import com.awesomeorg.airlineservice.AbstractIntegrationTest;
 import com.awesomeorg.airlineservice.entity.Baggage;
 import com.awesomeorg.airlineservice.protocol.CreateBaggageRequest;
-import com.awesomeorg.airlineservice.repository.BaggageRepository;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.awesomeorg.airlineservice.service.BaggageService;
 import lombok.SneakyThrows;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 import java.util.Arrays;
-import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
-@RunWith(SpringRunner.class)
-@SpringBootTest
+
 @AutoConfigureMockMvc
 public class BaggageControllerIntegrationTest extends AbstractIntegrationTest {
+
 
     @Autowired
     private MockMvc mockMvc;
 
-    @Autowired
-    private BaggageRepository baggageRepository;
-
-    @Autowired
-    private ObjectMapper objectMapper;
+    @MockBean
+    private BaggageService baggageService;
 
     @Test
     @SneakyThrows
-    public void testRegisterBaggage() {
+    @DirtiesContext
+    public void testCreateBaggage() {
 
-        CreateBaggageRequest baggageRequest = new CreateBaggageRequest();
-        baggageRequest.setWeight(14);
-        baggageRequest.setSize(1);
-        baggageRequest.setTypeOfBaggage(Baggage.BaggageType.CHECKED);
-        baggageRequest.setReservationId(Long.valueOf(3));
+        CreateBaggageRequest request = new CreateBaggageRequest();
+        request.setWeight(14);
+        request.setSize(1);
+        request.setTypeOfBaggage(Baggage.BaggageType.CHECKED);
+        request.setReservationId(3L);
 
 
-        MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders
-                        .post("/baggages")
+        given(baggageService.createBaggage(any(CreateBaggageRequest.class)))
+                .willReturn(new Baggage(request));
+
+
+        mockMvc.perform(MockMvcRequestBuilders.post("/baggages")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(baggageRequest)))
-                .andExpect(status().isCreated())
-                .andReturn();
+                        .content("{\"weight\":14,\"size\":1,\"typeOfBaggage\":\"CHECKED\",\"reservationId\":3}"))
+                .andExpect(MockMvcResultMatchers.status().isCreated())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.weight").value(14))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.size").value(1))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.typeOfBaggage").value("CHECKED"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.reservationId").value(3));
 
 
-        Baggage registeredBaggage = objectMapper.readValue(
-                mvcResult.getResponse().getContentAsString(), Baggage.class);
-
-        assertNotNull(registeredBaggage.getId());
-        assertEquals(baggageRequest.getWeight(), registeredBaggage.getWeight());
-        assertEquals(baggageRequest.getSize(), registeredBaggage.getSize());
-        assertEquals(baggageRequest.getTypeOfBaggage(), registeredBaggage.getTypeOfBaggage());
-        assertEquals(baggageRequest.getReservationId(), registeredBaggage.getReservationId());
-
-
-        baggageRepository.deleteById(registeredBaggage.getId());
+        verify(baggageService, times(1)).createBaggage(any(CreateBaggageRequest.class));
     }
-
 
 
     @Test
     @SneakyThrows
-    public void testListBaggageByReservation() {
-        Long reservationId = Long.valueOf(5);
-
-        MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders
-                        .get("/baggages/list")
-                        .param("reservationId", reservationId.toString()))
-                .andExpect(status().isOk())
-                .andReturn();
-
-        List<Baggage> baggageList = Arrays.asList(new ObjectMapper().readValue(
-                mvcResult.getResponse().getContentAsString(), Baggage[].class));
-
-        assertEquals(1, baggageList.size());
-        assertEquals(reservationId, baggageList.get(0).getReservationId());
-    }
-
-    @Test
-    @SneakyThrows
-    public void testGetBaggageById() {
-        Long baggageId = baggageRepository.findAll().get(0).getId();
-
-        MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders
-                        .get("/baggages/{baggageId}", baggageId))
-                .andExpect(status().isOk())
-                .andReturn();
-
-        Baggage retrievedBaggage = new ObjectMapper().readValue(
-                mvcResult.getResponse().getContentAsString(), Baggage.class);
-
-        assertEquals(baggageId, retrievedBaggage.getId());
-    }
-
-    @Test
-    @SneakyThrows
+    @DirtiesContext
     public void testRemoveBaggage() {
-        Long baggageId = baggageRepository.findAll().get(0).getId();
+        mockMvc.perform(MockMvcRequestBuilders.delete("/baggages/1"))
+                .andExpect(MockMvcResultMatchers.status().isNoContent());
 
-        mockMvc.perform(delete("/baggages/{baggageId}", baggageId))
-                .andExpect(status().isNoContent());
-
-        assertFalse(baggageRepository.existsById(baggageId));
+        verify(baggageService, times(1)).removeBaggage(1L);
     }
 
+    @Test
+    @SneakyThrows
+    @DirtiesContext
+    public void testListByReservation() {
+        given(baggageService.getBaggageByReservation(3L))
+                .willReturn(Arrays.asList(
+                        new Baggage(14, 1, Baggage.BaggageType.CHECKED, 3L),
+                        new Baggage(6, 2, Baggage.BaggageType.CHECKED, 5L)
+                ));
+
+        mockMvc.perform(MockMvcRequestBuilders.get("/baggages")
+                        .param("reservationId", "3"))
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].weight").value(14))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].size").value(1))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].typeOfBaggage").value("CHECKED"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].reservationId").value(3))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[1].weight").value(6))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[1].size").value(2))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[1].typeOfBaggage").value("CHECKED"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[1].reservationId").value(5));
+
+        verify(baggageService, times(1)).getBaggageByReservation(3L);
+    }
+
+    @Test
+    @SneakyThrows
+    @DirtiesContext
+    public void testGetById() {
+        given(baggageService.getBaggageById(1L))
+                .willReturn(new Baggage(14, 1, Baggage.BaggageType.CHECKED, 3L));
+
+        mockMvc.perform(MockMvcRequestBuilders.get("/baggages/1"))
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.weight").value(14))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.size").value(1))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.typeOfBaggage").value("CHECKED"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.reservationId").value(3));
+
+        verify(baggageService, times(1)).getBaggageById(1L);
+    }
 }

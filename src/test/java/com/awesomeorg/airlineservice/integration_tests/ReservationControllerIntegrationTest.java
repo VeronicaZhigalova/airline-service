@@ -3,117 +3,121 @@ package com.awesomeorg.airlineservice.integration_tests;
 import com.awesomeorg.airlineservice.AbstractIntegrationTest;
 import com.awesomeorg.airlineservice.entity.Passenger;
 import com.awesomeorg.airlineservice.entity.Reservation;
+import com.awesomeorg.airlineservice.entity.Ticket;
 import com.awesomeorg.airlineservice.protocol.CreatePassengerRequest;
 import com.awesomeorg.airlineservice.protocol.CreateReservationRequest;
-import com.awesomeorg.airlineservice.repository.PassengerRepository;
-import com.awesomeorg.airlineservice.repository.ReservationRepository;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.awesomeorg.airlineservice.protocol.TicketQuery;
+import com.awesomeorg.airlineservice.service.PassengerService;
+import com.awesomeorg.airlineservice.service.ReservationService;
+import com.awesomeorg.airlineservice.service.TicketService;
 import lombok.SneakyThrows;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.http.MediaType;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @AutoConfigureMockMvc
 public class ReservationControllerIntegrationTest extends AbstractIntegrationTest {
-
     @Autowired
     private MockMvc mockMvc;
 
     @Autowired
-    private ReservationRepository reservationRepository;
+    private ReservationService reservationService;
 
     @Autowired
-    private PassengerRepository passengerRepository;
+    private PassengerService passengerService;
 
     @Autowired
-    private ObjectMapper objectMapper;
+    private TicketService ticketService;
+
 
     @Test
     @SneakyThrows
-    public void testCreateReservation() {
-        // Register a passenger
+    @DirtiesContext
+    public void createReservationTest() {
+
         CreatePassengerRequest passengerRequest = new CreatePassengerRequest();
-        passengerRequest.setFirstName("John");
-        passengerRequest.setLastName("Doe");
-        passengerRequest.setPhoneNumber("555-123-4567");
-        passengerRequest.setEmailAddress("john.doe@example.com");
+        passengerRequest.setFirstName("Angela");
+        passengerRequest.setLastName("Smith");
+        passengerRequest.setPhoneNumber("987-654-3210");
+        passengerRequest.setEmailAddress("a.smith@example.com");
 
-        // Perform passenger registration
-        MvcResult passengerRegistrationResult = mockMvc.perform(MockMvcRequestBuilders
-                        .post("/passengers/register")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(passengerRequest)))
-                .andExpect(status().isAccepted())
-                .andReturn();
+        Passenger passenger = passengerService.createPassenger(passengerRequest);
 
-        // Extract the registered passenger
-        Passenger registeredPassenger = objectMapper.readValue(
-                passengerRegistrationResult.getResponse().getContentAsString(), Passenger.class);
 
-        assertNotNull(registeredPassenger.getId());
+        TicketQuery ticketRequest = new TicketQuery();
+        ticketRequest.setDateOfPurchase(LocalDate.parse("2023-01-15"));
+        ticketRequest.setDateOfFlight(LocalDate.parse("2024-03-16"));
+        ticketRequest.setDateOfReturn(LocalDate.parse("2024-05-17"));
+        ticketRequest.setSeat(5);
+        ticketRequest.setPriceOfTicket((int) 1500.60);
 
-        // Create a reservation using the registered passenger
+        Ticket ticket = ticketService.createTicket(ticketRequest);
+
+
         CreateReservationRequest reservationRequest = new CreateReservationRequest();
-        reservationRequest.setFlightNumber("ABC123");
-        reservationRequest.setDepartureAirport("JFK");
-        reservationRequest.setArrivalAirport("LAX");
-        reservationRequest.setDepartureTime(LocalDateTime.parse("2023-04-15T08:00:00"));
-        reservationRequest.setArrivalTime(LocalDateTime.parse("2023-04-15T12:00:00"));
-        reservationRequest.setTripType("One-way");
-        reservationRequest.setDeparture("New York");
-        reservationRequest.setDestination("Los Angeles");
-        reservationRequest.setNumberOfCustomerSeats(2);
+        reservationRequest.setFlightNumber("RKH987");
+        reservationRequest.setDepartureAirport("KOR");
+        reservationRequest.setArrivalAirport("EST");
+        reservationRequest.setDepartureTime(LocalDateTime.parse("2025-03-25T08:00:00"));
+        reservationRequest.setArrivalTime(LocalDateTime.parse("2025-03-25T12:00:00"));
+        reservationRequest.setTripType("Round-trip");
+        reservationRequest.setDeparture("Korea");
+        reservationRequest.setDestination("Estonia");
+        reservationRequest.setNumberOfCustomerSeats(1);
         reservationRequest.setClassOfFlight(Reservation.FlightClass.BUSINESS);
-        reservationRequest.setDepartureDate(LocalDate.parse("2023-04-15"));
-        reservationRequest.setReturnDate(null);
+        reservationRequest.setDepartureDate(LocalDate.parse("2025-03-25"));
+        reservationRequest.setReturnDate(LocalDate.parse("2025-05-25"));
         reservationRequest.setReservationStatus(Reservation.Status.CONFIRMED);
-        reservationRequest.setTicketId(1L);
-        reservationRequest.setPassengerId(registeredPassenger.getId());
+        reservationRequest.setTicketId(10L);
+        reservationRequest.setPassengerId(8L);
 
-        // Perform reservation creation
-        MvcResult reservationCreationResult = this.mockMvc.perform(MockMvcRequestBuilders
-                        .post("/reservations")
-                        .header("passenger-id", String.valueOf(registeredPassenger.getId()))
+
+        mockMvc.perform(MockMvcRequestBuilders.post("/reservations")
+                        .header("passenger-id", passenger.getId())
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(reservationRequest)))
-                .andExpect(status().isCreated())
-                .andReturn();
-
-        // Extract the created reservation
-        String reservationJsonString = reservationCreationResult.getResponse().getContentAsString();
-        Reservation createdReservation = objectMapper.readValue(reservationJsonString, Reservation.class);
-
-        // Assertions for the created reservation
-        assertEquals(Reservation.Status.CONFIRMED, createdReservation.getReservationStatus());
-        assertEquals(registeredPassenger.getId(), createdReservation.getPassengerId());
+                        .content("{\"flightNumber\":\"RKH987\",\"departureAirport\":\"KOR\",\"arrivalAirport\":\"EST\",\"departureTime\":\"2025-03-25T08:00:00\",\"arrivalTime\":\"2025-03-25T12:00:00\",\"tripType\":\"Round-trip\",\"departure\":\"Korea\",\"destination\":\"Estonia\",\"numberOfCustomerSeats\":1,\"classOfFlight\":\"BUSINESS\",\"departureDate\":\"2025-03-25\",\"returnDate\":\"2025-05-25\",\"reservationStatus\":\"CONFIRMED\",\"ticketId\":" + ticket.getId() + ",\"passengerId\":" + passenger.getId() + "}"))
+                .andExpect(MockMvcResultMatchers.status().isCreated())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.flightNumber").value("RKH987"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.departureAirport").value("KOR"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.arrivalAirport").value("EST"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.departureTime").value("2025-03-25T08:00:00"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.arrivalTime").value("2025-03-25T12:00:00"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.tripType").value("Round-trip"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.departure").value("Korea"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.destination").value("Estonia"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.numberOfCustomerSeats").value(1))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.classOfFlight").value("BUSINESS"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.departureDate").value("2025-03-25"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.returnDate").value("2025-05-25"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.reservationStatus").value("CONFIRMED"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.ticketId").value(ticket.getId()))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.passengerId").value(passenger.getId()));
     }
+
     @Test
     @SneakyThrows
-    public void testCancelReservation() {
-        Reservation existingReservation = reservationRepository.findAll().get(0);
+    @DirtiesContext
+    public void deleteReservationTest() {
 
-        try {
-            mockMvc.perform(delete("/reservations/{reservationId}", existingReservation.getId()))
-                    .andExpect(status().isNoContent());
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        long existingReservationId = 1L;
+
+        mockMvc.perform(MockMvcRequestBuilders.delete("/reservations/{reservationId}", existingReservationId)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.status().isNoContent());
 
 
-        Optional<Reservation> canceledReservation = reservationRepository.findById(existingReservation.getId());
-        assertTrue(canceledReservation.isPresent(), "Reservation should be present");
-        assertEquals("CANCELLED", canceledReservation.get().getReservationStatus(), "Reservation status should be CANCELLED");
+        Optional<Reservation> deletedReservation = reservationService.findReservation(existingReservationId);
+        assertTrue(deletedReservation.isEmpty());
     }
 }

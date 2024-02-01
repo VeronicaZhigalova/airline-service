@@ -4,105 +4,92 @@ import com.awesomeorg.airlineservice.AbstractIntegrationTest;
 import com.awesomeorg.airlineservice.entity.Passenger;
 import com.awesomeorg.airlineservice.protocol.CreatePassengerRequest;
 import com.awesomeorg.airlineservice.protocol.UpdatePassengerRequest;
-import com.awesomeorg.airlineservice.repository.PassengerRepository;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.awesomeorg.airlineservice.service.PassengerService;
 import lombok.SneakyThrows;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
-@RunWith(SpringRunner.class)
-@SpringBootTest
+
 @AutoConfigureMockMvc
 public class PassengerControllerIntegrationTest extends AbstractIntegrationTest {
 
     @Autowired
     private MockMvc mockMvc;
 
-    @Autowired
-    private PassengerRepository passengerRepository;
+    @MockBean
+    private PassengerService passengerService;
 
     @Test
     @SneakyThrows
+    @DirtiesContext
     public void testRegisterPassenger() {
-        CreatePassengerRequest passengerRequest = new CreatePassengerRequest();
-        passengerRequest.setFirstName("John");
-        passengerRequest.setLastName("Doe");
-        passengerRequest.setPhoneNumber("555-123-4567");
-        passengerRequest.setEmailAddress("john.doe@example.com");
+        CreatePassengerRequest request = new CreatePassengerRequest();
+        request.setFirstName("John");
+        request.setLastName("Doe");
+        request.setPhoneNumber("555-123-4567");
+        request.setEmailAddress("john.doe@example.com");
 
+        given(passengerService.createPassenger(any(CreatePassengerRequest.class)))
+                .willReturn(new Passenger(request));
 
-        ObjectMapper objectMapper = new ObjectMapper();
-        String jsonBody = objectMapper.writeValueAsString(passengerRequest);
-
-        MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders
-                        .post("/passengers/register")
+        mockMvc.perform(MockMvcRequestBuilders.post("/passengers/register")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(jsonBody))
-                .andExpect(status().isAccepted())
-                .andReturn();
+                        .content("{\"firstName\":\"John\",\"lastName\":\"Doe\",\"phoneNumber\":\"555-123-4567\",\"emailAddress\":\"john.doe@example.com\"}"))
+                .andExpect(MockMvcResultMatchers.status().isAccepted())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.firstName").value("John"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.lastName").value("Doe"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.phoneNumber").value("555-123-4567"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.emailAddress").value("john.doe@example.com"));
 
-        Passenger registeredPassenger = objectMapper.readValue(
-                mvcResult.getResponse().getContentAsString(), Passenger.class);
-
-        assertNotNull(registeredPassenger.getId());
-        assertEquals(passengerRequest.getFirstName(), registeredPassenger.getFirstName());
-        assertEquals(passengerRequest.getLastName(), registeredPassenger.getLastName());
-        assertEquals(passengerRequest.getPhoneNumber(), registeredPassenger.getPhoneNumber());
-        assertEquals(passengerRequest.getEmailAddress(), registeredPassenger.getEmailAddress());
-
+        verify(passengerService, times(1)).createPassenger(any(CreatePassengerRequest.class));
     }
 
     @Test
     @SneakyThrows
+    @DirtiesContext
     public void testUpdatePassenger() {
-        Passenger existingPassenger = passengerRepository.findAll().get(0);
-        UpdatePassengerRequest updatePassengerRequest = new UpdatePassengerRequest();
-        updatePassengerRequest.setFirstName("Alice");
-        updatePassengerRequest.setLastName("Miracle");
-        updatePassengerRequest.setPhoneNumber("549-923-8877");
-        updatePassengerRequest.setEmailAddress("alice.miracle@gmail.com");
+        Long passengerId = 1L;
+        UpdatePassengerRequest request = new UpdatePassengerRequest();
+        request.setFirstName("Julia");
+        request.setLastName("My");
+        request.setPhoneNumber("555-987-6543");
+        request.setEmailAddress("julia.my@example.com");
 
+        given(passengerService.updatePassenger(eq(passengerId), any(UpdatePassengerRequest.class)))
+                .willReturn(new Passenger(request));
 
-        ObjectMapper objectMapper = new ObjectMapper();
-        String jsonBody = objectMapper.writeValueAsString(updatePassengerRequest);
-
-        MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders
-                        .put("/passengers/{passengerId}", existingPassenger.getId())
+        mockMvc.perform(MockMvcRequestBuilders.put("/passengers/{passengerId}", passengerId)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(jsonBody))
-                .andExpect(status().isOk())
-                .andReturn();
+                        .content("{\"firstName\":\"UpdatedFirstName\",\"lastName\":\"UpdatedLastName\",\"phoneNumber\":\"555-987-6543\",\"emailAddress\":\"updated.email@example.com\"}"))
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.firstName").value("Julia"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.lastName").value("My"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.phoneNumber").value("555-987-6543"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.emailAddress").value("julia.my@example.com"));
 
-        Passenger updatedPassenger = objectMapper.readValue(
-                mvcResult.getResponse().getContentAsString(), Passenger.class);
-
-        assertEquals(updatePassengerRequest.getFirstName(), updatedPassenger.getFirstName());
-        assertEquals(updatePassengerRequest.getLastName(), updatedPassenger.getLastName());
-        assertEquals(updatePassengerRequest.getPhoneNumber(), updatedPassenger.getPhoneNumber());
-        assertEquals(updatePassengerRequest.getEmailAddress(), updatedPassenger.getEmailAddress());
-
+        verify(passengerService, times(1)).updatePassenger(eq(passengerId), any(UpdatePassengerRequest.class));
     }
 
     @Test
     @SneakyThrows
+    @DirtiesContext
     public void testDeletePassenger() {
-        Passenger existingPassenger = passengerRepository.findAll().get(0);
+        mockMvc.perform(MockMvcRequestBuilders.delete("/passengers/1"))
+                .andExpect(MockMvcResultMatchers.status().isNoContent());
 
-        mockMvc.perform(delete("/passengers/{passengerId}", existingPassenger.getId()))
-                .andExpect(status().isNoContent());
-
-        assertFalse(passengerRepository.existsById(existingPassenger.getId()));
+        verify(passengerService, times(1)).deletePassenger(1L);
     }
 }

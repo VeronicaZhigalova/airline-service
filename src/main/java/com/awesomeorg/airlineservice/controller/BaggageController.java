@@ -19,7 +19,7 @@ public class BaggageController {
 
     private final BaggageService baggageService;
 
-    @PostMapping
+    @PostMapping()
     public ResponseEntity<Baggage> register(@Valid @RequestBody final CreateBaggageRequest request) {
             final Baggage created = baggageService.createBaggage(request);
             return ResponseEntity.status(HttpStatus.CREATED)
@@ -32,7 +32,7 @@ public class BaggageController {
         return ResponseEntity.noContent().build();
     }
 
-    @GetMapping("/list")
+    @GetMapping()
     public ResponseEntity<List<Baggage>> listByReservation(@RequestParam Long reservationId) {
         List<Baggage> baggageList = baggageService.getBaggageByReservation(reservationId);
         return ResponseEntity.ok(baggageList);

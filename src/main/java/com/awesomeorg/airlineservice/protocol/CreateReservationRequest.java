@@ -2,13 +2,11 @@ package com.awesomeorg.airlineservice.protocol;
 
 import com.awesomeorg.airlineservice.entity.Reservation;
 import com.fasterxml.jackson.annotation.JsonFormat;
-
-import jakarta.persistence.Column;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
-import lombok.AllArgsConstructor;
 import lombok.Data;
 import org.springframework.format.annotation.DateTimeFormat;
+
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
@@ -53,10 +51,7 @@ public class CreateReservationRequest {
     @Enumerated(EnumType.STRING)
     private Reservation.Status reservationStatus;
 
-    @Column(name = "fk_passenger_id")
+
     private Long passengerId;
-
-
-
 
 }

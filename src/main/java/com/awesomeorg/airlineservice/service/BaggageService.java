@@ -3,16 +3,13 @@ package com.awesomeorg.airlineservice.service;
 import com.awesomeorg.airlineservice.entity.Baggage;
 import com.awesomeorg.airlineservice.exceptions.BaggageAlreadyExistsException;
 import com.awesomeorg.airlineservice.exceptions.BaggageNotFoundException;
-import com.awesomeorg.airlineservice.exceptions.TicketNotFoundException;
 import com.awesomeorg.airlineservice.protocol.CreateBaggageRequest;
 import com.awesomeorg.airlineservice.repository.BaggageRepository;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -24,7 +21,6 @@ public class BaggageService {
     private static final Logger log = LoggerFactory.getLogger(BaggageService.class);
 
     public Baggage createBaggage(CreateBaggageRequest request) {
-            try {
                 // Check if baggage already exists for the given reservation
                 Long reservationId = request.getReservationId();
                 if (reservationId == null) {
@@ -38,13 +34,6 @@ public class BaggageService {
                 // If not exists, create and save the new baggage
                 final Baggage baggage = new Baggage(request);
                 return baggageRepository.save(baggage);
-            } catch (DataAccessException ex) {
-                log.error("DataAccessException occurred", ex);
-                throw new BaggageNotFoundException("Failed to create baggage");
-            } catch (Exception ex) {
-                log.error("Unexpected error occurred", ex);
-                throw new RuntimeException("An unexpected error occurred", ex);
-            }
         }
 
     public void removeBaggage(Long baggageId) {

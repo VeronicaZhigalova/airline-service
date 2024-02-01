@@ -2,7 +2,6 @@ package com.awesomeorg.airlineservice.protocol;
 
 import com.awesomeorg.airlineservice.entity.Reservation;
 import com.fasterxml.jackson.annotation.JsonFormat;
-import jakarta.persistence.Column;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import lombok.Data;
@@ -52,7 +51,7 @@ public class UpdateReservationRequest {
     @Enumerated(EnumType.STRING)
     private Reservation.Status reservationStatus;
 
-    @Column(name = "fk_passenger_id")
+
     private Long passengerId;
 
 }

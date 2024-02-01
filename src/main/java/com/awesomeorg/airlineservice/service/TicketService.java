@@ -1,15 +1,12 @@
 package com.awesomeorg.airlineservice.service;
 
-import com.awesomeorg.airlineservice.entity.Passenger;
 import com.awesomeorg.airlineservice.entity.Ticket;
-import com.awesomeorg.airlineservice.exceptions.CustomerAlreadyExistsException;
 import com.awesomeorg.airlineservice.exceptions.TicketAlreadyExistsException;
 import com.awesomeorg.airlineservice.exceptions.TicketNotFoundException;
 import com.awesomeorg.airlineservice.protocol.TicketQuery;
 import com.awesomeorg.airlineservice.protocol.UpdateTicketRequest;
 import com.awesomeorg.airlineservice.repository.TicketRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.dao.DataAccessException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -38,27 +35,20 @@ public class TicketService {
 
 
     public Ticket createTicket(TicketQuery request) {
-        try {
-            LocalDate dateOfPurchase = request.getDateOfPurchase();
+        LocalDate dateOfPurchase = request.getDateOfPurchase();
 
-            // Check if ticket already exists
-            final Page<Ticket> existingTickets = ticketRepository.findFreeTicket(dateOfPurchase, PageRequest.of(0, 25));
-            if (!existingTickets.isEmpty()) {
-                throw new TicketAlreadyExistsException("Ticket already exists at this date");
-            }
-
-            // If not exists, create and save the new ticket
-            final Ticket ticket = new Ticket(request);
-            ticket.setDateOfFlight(request.getDateOfFlight());
-            return ticketRepository.save(ticket);
-
-        } catch (DataAccessException ex) {
-            throw new TicketNotFoundException("Failed to create ticket");
-        } catch (Exception ex) {
-            // Handle other exceptions
-            throw new RuntimeException("An unexpected error occurred", ex);
+        // Check if ticket already exists
+        final Page<Ticket> existingTickets = ticketRepository.findFreeTicket(dateOfPurchase, PageRequest.of(0, 25));
+        if (!existingTickets.isEmpty()) {
+            throw new TicketAlreadyExistsException("Ticket already exists at this date");
         }
+
+        // If not exists, create and save the new ticket
+        final Ticket ticket = new Ticket();
+        ticket.setDateOfFlight(request.getDateOfFlight());
+        return ticketRepository.save(ticket);
     }
+
 
 
 

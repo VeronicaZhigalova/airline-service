@@ -41,10 +41,10 @@ class_of_flight VARCHAR(20) NOT NULL,
 departure_date DATE NOT NULL,
 return_date DATE,
 reservation_status VARCHAR(20) NOT NULL,
-fk_ticket_id INTEGER NOT NULL,
-fk_passenger_id INTEGER NOT NULL,
-CONSTRAINT fk_ticket_id FOREIGN KEY (fk_ticket_id) REFERENCES tickets (id) ON DELETE CASCADE,
-CONSTRAINT fk_passenger_id FOREIGN KEY (fk_passenger_id) REFERENCES passengers (id) ON DELETE CASCADE
+ticket_id INTEGER NOT NULL,
+passenger_id INTEGER NOT NULL,
+CONSTRAINT ticket_id FOREIGN KEY (ticket_id) REFERENCES tickets (id) ON DELETE CASCADE,
+CONSTRAINT passenger_id FOREIGN KEY (passenger_id) REFERENCES passengers (id) ON DELETE CASCADE
 );
 
 

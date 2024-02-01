@@ -25,27 +25,20 @@ public class InternalPassengerController {
         return ResponseEntity.status(HttpStatus.CREATED).body(passenger);
     }
 
-//    @GetMapping("/find/{passengerId}")
-//    public ResponseEntity<Passenger> findPassenger(@PathVariable Long passengerId) {
-//        Optional<Passenger> passenger = passengerService.findPassengerById(passengerId);
-//        return passenger.map(value -> ResponseEntity.ok().body(value))
-//                .orElseGet(() -> ResponseEntity.notFound().build());
-//    }
-
-    @PutMapping("/update/{passengerId}")
+    @PutMapping("/{passengerId}")
     public ResponseEntity<Passenger> updatePassenger(@PathVariable Long passengerId,
                                                      @Valid @RequestBody UpdatePassengerRequest request) {
         Passenger updatedPassenger = passengerService.updatePassenger(passengerId, request);
         return ResponseEntity.ok().body(updatedPassenger);
     }
 
-    @DeleteMapping("/delete/{passengerId}")
+    @DeleteMapping("/{passengerId}")
     public ResponseEntity<Void> deletePassenger(@PathVariable Long passengerId) {
         passengerService.deletePassenger(passengerId);
         return ResponseEntity.noContent().build();
     }
 
-    @GetMapping("/get/{passengerId}")
+    @GetMapping("/{passengerId}")
     public ResponseEntity<Optional<Passenger>> searchPassengers(@PathVariable Long passengerId) {
         Optional<Passenger> passengers = passengerService.findPassengerById(passengerId);
         return ResponseEntity.ok().body(passengers);

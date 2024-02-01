@@ -38,7 +38,7 @@ public class InternalReservationController {
     }
 
 
-    @PutMapping("{reservationId}")
+    @PutMapping("/{reservationId}")
     public ResponseEntity<Reservation> updateReservation(@PathVariable Long reservationId,
                                                          @Valid @RequestBody UpdateReservationRequest request,
                                                          @PathVariable Long passengerId) {
@@ -50,7 +50,7 @@ public class InternalReservationController {
 
     @DeleteMapping("/{reservationId}")
     public ResponseEntity<Void> deleteReservation(@PathVariable Long reservationId) {
-        reservationService.cancelReservation(reservationId);
+        reservationService.deleteReservation(reservationId);
         return ResponseEntity.noContent().build();
     }
 

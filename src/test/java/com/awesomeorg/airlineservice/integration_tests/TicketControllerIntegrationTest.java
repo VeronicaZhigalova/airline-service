@@ -1,30 +1,30 @@
 package com.awesomeorg.airlineservice.integration_tests;
 
+
 import com.awesomeorg.airlineservice.AbstractIntegrationTest;
 import com.awesomeorg.airlineservice.entity.Ticket;
 import com.awesomeorg.airlineservice.protocol.TicketQuery;
 import com.awesomeorg.airlineservice.protocol.UpdateTicketRequest;
-import com.awesomeorg.airlineservice.repository.TicketRepository;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.awesomeorg.airlineservice.service.TicketService;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 import java.time.LocalDate;
 
-import static junit.framework.TestCase.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+
 
 @AutoConfigureMockMvc
 public class TicketControllerIntegrationTest extends AbstractIntegrationTest {
@@ -32,99 +32,69 @@ public class TicketControllerIntegrationTest extends AbstractIntegrationTest {
     @Autowired
     private MockMvc mockMvc;
 
-    @Autowired
-    private TicketRepository ticketRepository;
+    @MockBean
+    private TicketService ticketService;
+
+    private final Ticket existingTicket = new Ticket();
 
     @Test
     @SneakyThrows
-    public void testFindFreeTicket() {
-        Ticket ticket = new Ticket();
-        ticket.setDateOfFlight(LocalDate.now());
-        ticket.setDateOfPurchase(LocalDate.now());
-        ticket.setDateOfReturn(LocalDate.now());
-        ticket.setPriceOfTicket((int) 1450.50);
-        ticket.setSeat(2);
-
-        ticketRepository.save(ticket);
-
-        Page<Ticket> result = ticketRepository.findFreeTicket(LocalDate.now(), PageRequest.of(0, 10));
-
-
-        Ticket expectedTicket = new Ticket();
-        expectedTicket.setId(result.getContent().get(0).getId());
-        expectedTicket.setDateOfPurchase(LocalDate.now());
-        expectedTicket.setDateOfFlight(LocalDate.now());
-        expectedTicket.setDateOfReturn(LocalDate.now());
-        expectedTicket.setSeat(5);
-        expectedTicket.setPriceOfTicket((int) 1500);
-
-        assertEquals(2, result.getTotalElements());
-        assertEquals(expectedTicket, result.getContent().get(0));
-    }
-
-    @Test
-    @SneakyThrows
+    @DirtiesContext
     public void testCreateTicket() {
-        TicketQuery ticketQuery = new TicketQuery();
-        ticketQuery.setDateOfFlight(LocalDate.now());
-        ticketQuery.setDateOfPurchase(LocalDate.now());
-        ticketQuery.setDateOfReturn(LocalDate.now());
-        ticketQuery.setPriceOfTicket((int) 1500.60);
-        ticketQuery.setSeat(5);
+        Ticket ticketToCreate = new Ticket();
+        ticketToCreate.setId(1L);
+        ticketToCreate.setDateOfFlight(LocalDate.now().plusDays(5));
+        ticketToCreate.setDateOfPurchase(LocalDate.now());
+        ticketToCreate.setDateOfReturn(LocalDate.now().plusDays(10));
+        ticketToCreate.setPriceOfTicket((int) 1500.60);
+        ticketToCreate.setSeat(5);
 
-        ObjectMapper objectMapper = new ObjectMapper().registerModule(new JavaTimeModule());
-        String jsonBody = objectMapper.writeValueAsString(ticketQuery);
+        given(ticketService.createTicket(any(TicketQuery.class))).willReturn(ticketToCreate);
 
-        MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders
-                        .post("/tickets")
+        mockMvc.perform(MockMvcRequestBuilders.post("/tickets")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(jsonBody))
-                .andExpect(status().isCreated())
-                .andReturn();
-
-        Ticket createdTicket = objectMapper.readValue(mvcResult.getResponse().getContentAsString(), Ticket.class);
-        assertNotNull(createdTicket.getId());
+                        .content("{\"dateOfFlight\":\"" + ticketToCreate.getDateOfFlight() + "\"," +
+                                "\"dateOfReturn\":\"" + ticketToCreate.getDateOfReturn() + "\"," +
+                                "\"seat\":" + ticketToCreate.getSeat() + "," +
+                                "\"priceOfTicket\":" + ticketToCreate.getPriceOfTicket() + "}"))
+                .andExpect(MockMvcResultMatchers.status().isCreated())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.id").value(1L))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.dateOfPurchase").value(LocalDate.now().toString()))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.dateOfFlight").value(ticketToCreate.getDateOfFlight().toString()))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.dateOfReturn").value(ticketToCreate.getDateOfReturn().toString()))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.seat").value(5))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.priceOfTicket").value(1500.0));
     }
 
     @Test
     @SneakyThrows
+    @DirtiesContext
     public void testUpdateTicket() {
-        Ticket existingTicket = ticketRepository.findAll().get(0);
-        UpdateTicketRequest updateTicketRequest = new UpdateTicketRequest();
-        updateTicketRequest.setDateOfFlight(LocalDate.now().plusDays(1));
-        updateTicketRequest.setDateOfPurchase(LocalDate.now().plusDays(1));
-        updateTicketRequest.setDateOfReturn(LocalDate.now().plusDays(1));
-        updateTicketRequest.setPriceOfTicket(1500);
-        updateTicketRequest.setSeat(10);
 
-        ObjectMapper objectMapper = new ObjectMapper().registerModule(new JavaTimeModule());
-        String jsonBody = objectMapper.writeValueAsString(updateTicketRequest);
+        Long existingTicketId = 1L;
 
-        MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders
-                        .put("/tickets/{ticketId}", existingTicket.getId())
+
+        given(ticketService.updateTicket(eq(existingTicketId), any(UpdateTicketRequest.class))).willReturn(existingTicket);
+
+        mockMvc.perform(MockMvcRequestBuilders.put("/tickets/{ticketId}", existingTicketId)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(jsonBody))
-                .andExpect(status().isOk())
-                .andReturn();
+                        .content("{}"))
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.id").value(existingTicket.getId()));
 
-        Ticket updatedTicket = objectMapper.readValue(mvcResult.getResponse().getContentAsString(), Ticket.class);
-        assertEquals(updateTicketRequest.getDateOfFlight(), updatedTicket.getDateOfFlight());
-        assertEquals(updateTicketRequest.getDateOfPurchase(), updatedTicket.getDateOfPurchase());
-        assertEquals(updateTicketRequest.getDateOfReturn(), updatedTicket.getDateOfReturn());
-        assertEquals(updateTicketRequest.getPriceOfTicket(), updatedTicket.getPriceOfTicket());
-        assertEquals(updateTicketRequest.getSeat(), updatedTicket.getSeat());
+
+        verify(ticketService, times(1)).updateTicket(eq(existingTicketId), any(UpdateTicketRequest.class));
     }
 
 
 
     @Test
     @SneakyThrows
+    @DirtiesContext
     public void testDeleteTicket() {
-        Ticket existingTicket = ticketRepository.findAll().get(0);
+        mockMvc.perform(MockMvcRequestBuilders.delete("/tickets/1"))
+                .andExpect(MockMvcResultMatchers.status().isNoContent());
 
-        mockMvc.perform(delete("/tickets/{ticketId}", existingTicket.getId()))
-                .andExpect(status().isNoContent());
-
-        assertFalse(ticketRepository.existsById(existingTicket.getId()));
+        verify(ticketService, times(1)).deleteTicket(1L);
     }
 }

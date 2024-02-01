@@ -26,8 +26,8 @@ public abstract class AbstractIntegrationTest {
         flyway.migrate();
     }
 
-//    @AfterEach
-//    public void afterEach(){
-//        flyway.clean();
-//    }
+    @AfterEach
+    public void afterEach(){
+
+    }
 }

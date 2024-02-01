@@ -27,8 +27,17 @@ public class Baggage {
         this.weight = request.getWeight();
         this.size = request.getSize();
         this.typeOfBaggage = request.getTypeOfBaggage();
-        this.reservationId = getReservationId();
+        this.reservationId = request.getReservationId();
     }
+
+
+    public Baggage(Integer weight, Integer size, BaggageType typeOfBaggage, Long reservationId) {
+        this.weight = weight;
+        this.size = size;
+        this.typeOfBaggage = typeOfBaggage;
+        this.reservationId = reservationId;
+    }
+
 
     public enum BaggageType {
         CHECKED,

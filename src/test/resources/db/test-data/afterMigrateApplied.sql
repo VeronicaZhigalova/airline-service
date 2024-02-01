@@ -27,7 +27,7 @@ VALUES  ('Jane', 'Doe', '555-123-4567', 'jane.doe@example.com'),
 INSERT INTO reservations (flight_number, departure_airport, arrival_airport,
                              departure_time, arrival_time, trip_type, departure, destination,
                              number_of_customer_seats, class_of_flight, departure_date, return_date,
-                             reservation_status, fk_ticket_id, fk_passenger_id)
+                             reservation_status, ticket_id, passenger_id)
 VALUES ('ABC123', 'JFK', 'LAX', '2023-04-15 08:00:00', '2023-04-15 12:00:00', 'One-way', 'New York', 'Los Angeles',
        2, 'BUSINESS', '2023-04-15', NULL, 'CONFIRMED', 1, 1),
       ('XYZ456', 'LHR', 'CDG', '2023-06-20 15:30:00', '2023-06-20 18:30:00', 'Round-trip', 'London', 'Paris',

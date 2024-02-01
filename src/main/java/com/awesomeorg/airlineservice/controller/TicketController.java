@@ -22,7 +22,7 @@ public class TicketController {
     private final TicketService ticketService;
 
 
-    @GetMapping("/find")
+    @GetMapping()
     public ResponseEntity<Page<Ticket>> findTicket(@Valid final TicketQuery query,
                                                    @RequestParam(defaultValue = "0", required = false) final int pageNumber,
                                                    @RequestParam(defaultValue = "25", required = false) final int pageSize) {

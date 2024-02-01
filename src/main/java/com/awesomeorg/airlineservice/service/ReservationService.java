@@ -1,9 +1,11 @@
 package com.awesomeorg.airlineservice.service;
 
 import com.awesomeorg.airlineservice.entity.Reservation;
+import com.awesomeorg.airlineservice.entity.Ticket;
 import com.awesomeorg.airlineservice.exceptions.BadRequestException;
-import com.awesomeorg.airlineservice.exceptions.NotFoundException;
 import com.awesomeorg.airlineservice.exceptions.ReservationNotFoundException;
+import com.awesomeorg.airlineservice.exceptions.SeatCapacityExceededException;
+import com.awesomeorg.airlineservice.exceptions.TicketNotFoundException;
 import com.awesomeorg.airlineservice.protocol.CreateReservationRequest;
 import com.awesomeorg.airlineservice.protocol.InternalReservationQuery;
 import com.awesomeorg.airlineservice.protocol.UpdateReservationRequest;
@@ -30,14 +32,12 @@ public class ReservationService {
     private final TicketService ticketService;
 
         public Reservation createReservation(CreateReservationRequest request, Long passengerId) {
-            try {
-                validateCreateReservation(request, passengerId);
-                Reservation reservation = new Reservation(request, passengerId);
-                return reservationRepository.save(reservation);
-            } catch (Exception e) {
-                throw new RuntimeException("Failed to create reservation", e);
-            }
+            validateCreateReservation(request, passengerId);
+
+            Reservation reservation = new Reservation(request, passengerId);
+            return reservationRepository.save(reservation);
         }
+
 
         private void validateCreateReservation(CreateReservationRequest request, Long passengerId) {
             validateBlocklistedCustomer(passengerId);
@@ -53,12 +53,16 @@ public class ReservationService {
         }
 
         private void findAndValidateTicket(Long ticketId, Integer numberOfCustomerSeats) {
-            ticketService.findTicketById(ticketId)
-                    .filter(ticket -> ticket.getSeat() <= numberOfCustomerSeats)
-                    .orElseThrow(() -> new NotFoundException(String.format("Ticket %d not found or can't fit so many guests", ticketId)));
+            Ticket ticket = ticketService.findTicketById(ticketId)
+                    .orElseThrow(() -> new TicketNotFoundException("Ticket not found with ID: " + ticketId));
+
+            if (ticket.getSeat() > numberOfCustomerSeats) {
+                throw new SeatCapacityExceededException(String.format("Ticket %d cannot accommodate %d guests", ticketId, numberOfCustomerSeats));
+            }
         }
 
-        private void checkExistingReservations(Long passengerId, CreateReservationRequest request) {
+
+    private void checkExistingReservations(Long passengerId, CreateReservationRequest request) {
             InternalReservationQuery query = new InternalReservationQuery();
             query.setPassengerId(passengerId);
             query.setArrivalAirport(request.getArrivalAirport());
@@ -77,7 +81,7 @@ public class ReservationService {
             }
         }
 
-    public void cancelReservation(Long reservationId) {
+    public void deleteReservation(Long reservationId) {
         // Check if reservation with the given reservationId exists
         Optional<Reservation> reservation = findReservation(reservationId);
 
