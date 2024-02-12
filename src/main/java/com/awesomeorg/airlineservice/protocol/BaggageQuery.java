@@ -6,7 +6,8 @@ import jakarta.persistence.Enumerated;
 import lombok.Data;
 
 @Data
-public class CreateBaggageRequest {
+public class BaggageQuery {
+
     private Integer weight;
 
     private Integer size;
@@ -15,4 +16,5 @@ public class CreateBaggageRequest {
     private Baggage.BaggageType typeOfBaggage;
 
     private Long reservationId;
+
 }

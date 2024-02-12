@@ -31,14 +31,6 @@ public class Baggage {
     }
 
 
-    public Baggage(Integer weight, Integer size, BaggageType typeOfBaggage, Long reservationId) {
-        this.weight = weight;
-        this.size = size;
-        this.typeOfBaggage = typeOfBaggage;
-        this.reservationId = reservationId;
-    }
-
-
     public enum BaggageType {
         CHECKED,
         CARRY_ON,

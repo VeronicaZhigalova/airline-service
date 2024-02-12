@@ -1,33 +1,44 @@
 package com.awesomeorg.airlineservice;
 
+import jakarta.annotation.PostConstruct;
+import jakarta.annotation.PreDestroy;
 import org.flywaydb.core.Flyway;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.testcontainers.containers.PostgreSQLContainer;
+import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
-import org.testcontainers.shaded.com.fasterxml.jackson.databind.ObjectMapper;
 
 @Testcontainers
 @SpringBootTest
 @ExtendWith(SpringExtension.class)
 @ActiveProfiles("test-containers")
 public abstract class AbstractIntegrationTest {
+    @Container
+    public static PostgreSQLContainer<?> postgreSQLContainer = new PostgreSQLContainer<>("postgres:16")
+            .withDatabaseName("testdb")
+            .withUsername("testuser")
+            .withPassword("testpassword");
+
     @Autowired
     private Flyway flyway;
 
-    public final ObjectMapper mapper = new ObjectMapper();
+    @PostConstruct
+    public void setUp() {
+        System.setProperty("spring.datasource.url", postgreSQLContainer.getJdbcUrl());
+        System.setProperty("spring.datasource.username", postgreSQLContainer.getUsername());
+        System.setProperty("spring.datasource.password", postgreSQLContainer.getPassword());
 
-    @BeforeEach
-    public void beforeEach(){
         flyway.migrate();
     }
 
-    @AfterEach
-    public void afterEach(){
-
+    @PreDestroy
+    public void tearDown() {
+        if (postgreSQLContainer != null && postgreSQLContainer.isRunning()) {
+            flyway.clean();
+        }
     }
 }

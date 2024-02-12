@@ -2,6 +2,8 @@ spring:
   datasource:
     url: jdbc:tc:postgresql:16:///airline_db-test
     driver-class-name: org.testcontainers.jdbc.ContainerDatabaseDriver
+    username: airline
+    password: password
     flyway:
       url: jdbc:tc:postgresql:16:///airline_db-test
       locations: classpath:/db/tables, classpath:/db/test-data

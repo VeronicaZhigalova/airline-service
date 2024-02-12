@@ -3,7 +3,7 @@ package com.awesomeorg.airlineservice.protocol;
 import lombok.Data;
 
 @Data
-public class UpdatePassengerRequest extends CreatePassengerRequest {
+public class UpdatePassengerRequest {
 
     private String firstName;
 

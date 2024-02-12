@@ -12,7 +12,6 @@ import java.time.LocalDateTime;
 
 @Data
 public class CreateReservationRequest {
-
     private String flightNumber;
 
     private String departureAirport;

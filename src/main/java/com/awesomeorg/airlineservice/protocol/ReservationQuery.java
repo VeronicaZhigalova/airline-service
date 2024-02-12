@@ -1,5 +1,6 @@
 package com.awesomeorg.airlineservice.protocol;
 
+
 import com.awesomeorg.airlineservice.entity.Reservation;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.EnumType;
@@ -11,7 +12,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Data
-public class UpdateReservationRequest  {
+public class ReservationQuery {
 
     private String flightNumber;
 
@@ -54,4 +55,26 @@ public class UpdateReservationRequest  {
 
     private Long passengerId;
 
+    public ReservationQuery(String flightNumber, String departureAirport, String arrivalAirport,
+                            LocalDateTime departureTime, LocalDateTime arrivalTime, String tripType,
+                            String departure, String destination, Integer numberOfCustomerSeats,
+                            Reservation.FlightClass classOfFlight, LocalDate departureDate, LocalDate returnDate,
+                            Reservation.Status reservationStatus, Long ticketId, Long passengerId) {
+        this.flightNumber = flightNumber;
+        this.departureAirport = departureAirport;
+        this.arrivalAirport = arrivalAirport;
+        this.departureTime = departureTime;
+        this.arrivalTime = arrivalTime;
+        this.tripType = tripType;
+        this.departure = departure;
+        this.destination = destination;
+        this.numberOfCustomerSeats = numberOfCustomerSeats;
+        this.classOfFlight = classOfFlight;
+        this.departureDate = departureDate;
+        this.returnDate = returnDate;
+        this.reservationStatus = reservationStatus;
+        this.ticketId = ticketId;
+        this.passengerId = passengerId;
+    }
 }
+

@@ -1,7 +1,7 @@
 package com.awesomeorg.airlineservice.repository.specification;
 
 import com.awesomeorg.airlineservice.entity.Reservation;
-import com.awesomeorg.airlineservice.protocol.InternalReservationQuery;
+import com.awesomeorg.airlineservice.protocol.ReservationQuery;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import org.springframework.data.jpa.domain.Specification;
@@ -13,7 +13,7 @@ import java.util.List;
 @AllArgsConstructor
 public class ReservationSpecification {
 
-    public static Specification<Reservation> createSpecification(final InternalReservationQuery query) {
+    public static Specification<Reservation> createSpecification(final ReservationQuery query) {
         Specification<Reservation> specification = null;
         final List<Specification<Reservation>> specifications = getSpecificationList(query);
         for (final Specification<Reservation> s : specifications) {
@@ -26,97 +26,60 @@ public class ReservationSpecification {
         return specification;
     }
 
-    private static List<Specification<Reservation>> getSpecificationList(final InternalReservationQuery query) {
+
+    private static List<Specification<Reservation>> getSpecificationList(final ReservationQuery query) {
         final List<Specification<Reservation>> specifications = new ArrayList<>();
 
-        if (query.getReservationStatus() != null) {
-            Specification<Reservation> specification = Specification
-                    .where(withEqualsField(new ReservationSearchCriteria("reservationStatus", query.getReservationStatus())));
-            specifications.add(specification);
-        }
-        if (query.getReservationDate() != null) {
-            Specification<Reservation> specification = Specification
-                    .where(withEqualsField(new ReservationSearchCriteria("reservationDate", query.getReservationDate())));
-            specifications.add(specification);
-        }
-
         if (query.getFlightNumber() != null) {
-            Specification<Reservation> specification = Specification
-                    .where(withEqualsField(new ReservationSearchCriteria("flightNumber", query.getFlightNumber())));
-            specifications.add(specification);
+            specifications.add(withEqualsField("flightNumber", query.getFlightNumber()));
         }
-
         if (query.getDepartureAirport() != null) {
-            Specification<Reservation> specification = Specification
-                    .where(withEqualsField(new ReservationSearchCriteria("departureAirport", query.getDepartureAirport())));
-            specifications.add(specification);
+            specifications.add(withEqualsField("departureAirport", query.getDepartureAirport()));
         }
         if (query.getArrivalAirport() != null) {
-            Specification<Reservation> specification = Specification
-                    .where(withEqualsField(new ReservationSearchCriteria("arrivalAirport", query.getArrivalAirport())));
-            specifications.add(specification);
+            specifications.add(withEqualsField("arrivalAirport", query.getArrivalAirport()));
         }
         if (query.getDepartureTime() != null) {
-            Specification<Reservation> specification = Specification
-                    .where(withEqualsField(new ReservationSearchCriteria("departureTime", query.getDepartureTime())));
-            specifications.add(specification);
+            specifications.add(withEqualsField("departureTime", query.getDepartureTime()));
         }
         if (query.getArrivalTime() != null) {
-            Specification<Reservation> specification = Specification
-                    .where(withEqualsField(new ReservationSearchCriteria("arrivalTime", query.getArrivalTime())));
-            specifications.add(specification);
+            specifications.add(withEqualsField("arrivalTime", query.getArrivalTime()));
         }
         if (query.getTripType() != null) {
-            Specification<Reservation> specification = Specification
-                    .where(withEqualsField(new ReservationSearchCriteria("tripType", query.getTripType())));
-            specifications.add(specification);
+            specifications.add(withEqualsField("tripType", query.getTripType()));
         }
         if (query.getDeparture() != null) {
-            Specification<Reservation> specification = Specification
-                    .where(withEqualsField(new ReservationSearchCriteria("departure", query.getDeparture())));
-            specifications.add(specification);
+            specifications.add(withEqualsField("departure", query.getDeparture()));
         }
         if (query.getDestination() != null) {
-            Specification<Reservation> specification = Specification
-                    .where(withEqualsField(new ReservationSearchCriteria("destination", query.getDestination())));
-            specifications.add(specification);
+            specifications.add(withEqualsField("destination", query.getDestination()));
         }
-        if (query.getNumberOfCustomerSeats() != null && query.getNumberOfCustomerSeats() != 0) {
-            Specification<Reservation> specification = Specification
-                    .where(withEqualsField(new ReservationSearchCriteria("numberOfCustomerSeats", query.getNumberOfCustomerSeats())));
-            specifications.add(specification);
+        if (query.getNumberOfCustomerSeats() != null) {
+            specifications.add(withEqualsField("numberOfCustomerSeats", query.getNumberOfCustomerSeats()));
         }
         if (query.getClassOfFlight() != null) {
-            Specification<Reservation> specification = Specification
-                    .where(withEqualsField(new ReservationSearchCriteria("classOfFlight", query.getClassOfFlight())));
-            specifications.add(specification);
+            specifications.add(withEqualsField("classOfFlight", query.getClassOfFlight()));
         }
         if (query.getDepartureDate() != null) {
-            Specification<Reservation> specification = Specification
-                    .where(withEqualsField(new ReservationSearchCriteria("departureDate", query.getDepartureDate())));
-            specifications.add(specification);
+            specifications.add(withEqualsField("departureDate", query.getDepartureDate()));
         }
         if (query.getReturnDate() != null) {
-            Specification<Reservation> specification = Specification
-                    .where(withEqualsField(new ReservationSearchCriteria("returnDate", query.getReturnDate())));
-            specifications.add(specification);
+            specifications.add(withEqualsField("returnDate", query.getReturnDate()));
         }
-        if (query.getSeatId() != null && query.getSeatId() != 0) {
-            Specification<Reservation> specification = Specification
-                    .where(withEqualsField(new ReservationSearchCriteria("seatId", query.getSeatId())));
-            specifications.add(specification);
+        if (query.getTicketId() != null) {
+            specifications.add(withEqualsField("ticketId", query.getTicketId()));
         }
-        if (query.getPassengerId() != null && query.getPassengerId() != 0) {
-            Specification<Reservation> specification = Specification
-                    .where(withEqualsField(new ReservationSearchCriteria("passengerId", query.getPassengerId())));
-            specifications.add(specification);
+        if (query.getReservationStatus() != null) {
+            specifications.add(withEqualsField("reservationStatus", query.getReservationStatus()));
+        }
+        if (query.getPassengerId() != null) {
+            specifications.add(withEqualsField("passengerId", query.getPassengerId()));
         }
 
         return specifications;
     }
 
-    private static Specification<Reservation> withEqualsField(final ReservationSearchCriteria criteria) {
-        return ((root, query, builder) -> builder.equal(root.get(criteria.getKey()), criteria.getValue()));
+    private static <T> Specification<T> withEqualsField(String fieldName, Object value) {
+        return (root, query, builder) -> builder.equal(root.get(fieldName), value);
     }
-
 }

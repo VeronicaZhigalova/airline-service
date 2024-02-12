@@ -1,6 +1,6 @@
 package com.awesomeorg.airlineservice.entity;
 
-import com.awesomeorg.airlineservice.protocol.CreateReservationRequest;
+import com.awesomeorg.airlineservice.protocol.ReservationQuery;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
 import lombok.Data;
@@ -25,8 +25,8 @@ public class Reservation {
 
     private String arrivalAirport;
 
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
+    @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime departureTime;
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
@@ -55,13 +55,13 @@ public class Reservation {
     @Enumerated(EnumType.STRING)
     private Status reservationStatus;
 
-    @Column(name="fk_ticket_id")
+    @Column(name="ticket_id")
     private Long ticketId;
 
-    @Column(name = "fk_passenger_id")
+    @Column(name = "passenger_id")
     private Long passengerId;
 
-    public Reservation(final CreateReservationRequest request,
+    public Reservation(final ReservationQuery request,
                        final Long passengerId) {
         this.flightNumber = request.getFlightNumber();
         this.departureAirport = request.getDepartureAirport();

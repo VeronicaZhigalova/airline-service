@@ -9,7 +9,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-
 import java.util.List;
 
 @RestController
@@ -32,6 +31,7 @@ public class BaggageController {
         return ResponseEntity.noContent().build();
     }
 
+
     @GetMapping()
     public ResponseEntity<List<Baggage>> listByReservation(@RequestParam Long reservationId) {
         List<Baggage> baggageList = baggageService.getBaggageByReservation(reservationId);
@@ -39,8 +39,9 @@ public class BaggageController {
     }
 
 
+
     @GetMapping("/{baggageId}")
-    public ResponseEntity<Baggage> getById(@PathVariable Long baggageId) {
+    public ResponseEntity<Baggage> getBaggageById(@PathVariable Long baggageId) {
             Baggage baggage = baggageService.getBaggageById(baggageId);
             return ResponseEntity.ok(baggage);
 

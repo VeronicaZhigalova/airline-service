@@ -1,7 +1,7 @@
 package com.awesomeorg.airlineservice.controller;
 
 import com.awesomeorg.airlineservice.entity.Reservation;
-import com.awesomeorg.airlineservice.protocol.CreateReservationRequest;
+import com.awesomeorg.airlineservice.protocol.ReservationQuery;
 import com.awesomeorg.airlineservice.protocol.UpdateReservationRequest;
 import com.awesomeorg.airlineservice.service.ReservationService;
 import com.awesomeorg.airlineservice.util.HeaderConstants;
@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
@@ -23,9 +24,9 @@ public class InternalReservationController {
 
 
     @PostMapping("/create")
-    public ResponseEntity<Reservation> createReservation(@Valid @RequestBody CreateReservationRequest request,
+    public ResponseEntity<Reservation> createReservation(@Valid @RequestBody ReservationQuery query,
                                                          @RequestHeader(HeaderConstants.PASSENGER_ID_HEADER) Long passengerId) {
-        Reservation reservation = reservationService.createReservation(request, passengerId);
+        Reservation reservation = reservationService.createReservation(query, passengerId);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(reservation);
     }
@@ -62,5 +63,4 @@ public class InternalReservationController {
         List<Reservation> reservations = reservationService.findReservation(departure, destination, departureDate);
         return ResponseEntity.ok().body(reservations);
     }
-
 }

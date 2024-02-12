@@ -37,10 +37,9 @@ public class PassengerService {
     }
 
     public void deletePassenger(Long passengerId) {
-        // Check if passenger with the given passengerId exists
+
         Optional<Passenger> passenger = findPassengerById(passengerId);
 
-        // If exists, delete the passenger
         if (passenger.isPresent()) {
             passengerRepository.deleteById(passengerId);
         } else {

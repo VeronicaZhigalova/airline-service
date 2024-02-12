@@ -5,54 +5,84 @@ import com.awesomeorg.airlineservice.exceptions.BaggageAlreadyExistsException;
 import com.awesomeorg.airlineservice.exceptions.BaggageNotFoundException;
 import com.awesomeorg.airlineservice.protocol.CreateBaggageRequest;
 import com.awesomeorg.airlineservice.repository.BaggageRepository;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.Path;
+import jakarta.persistence.criteria.Predicate;
 import lombok.RequiredArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
 public class BaggageService {
 
     private final BaggageRepository baggageRepository;
-    private static final Logger log = LoggerFactory.getLogger(BaggageService.class);
+
 
     public Baggage createBaggage(CreateBaggageRequest request) {
-                // Check if baggage already exists for the given reservation
-                Long reservationId = request.getReservationId();
-                if (reservationId == null) {
-                    throw new IllegalArgumentException("Reservation ID cannot be null");
-                }
-                final Optional<Baggage> optionalBaggage = baggageRepository.findByReservationId(reservationId);
-                if (optionalBaggage.isPresent()) {
-                    throw new BaggageAlreadyExistsException("Baggage already exists for the given reservation");
-                }
 
-                // If not exists, create and save the new baggage
-                final Baggage baggage = new Baggage(request);
-                return baggageRepository.save(baggage);
+            Long reservationId = request.getReservationId();
+            if (reservationId == null) {
+                throw new IllegalArgumentException("Reservation ID cannot be null");
+            }
+
+            if (baggageRepository.findByReservationId(reservationId).isPresent()) {
+                throw new BaggageAlreadyExistsException("Baggage already exists for the given reservation");
+            }
+
+            Baggage baggage = new Baggage(request);
+            return baggageRepository.save(baggage);
         }
 
     public void removeBaggage(Long baggageId) {
-        // Check if baggage with the given baggageId exists
+
         Baggage baggage = getBaggageById(baggageId);
 
-        // If exists, remove the baggage
         baggageRepository.deleteById(baggageId);
     }
 
     public List<Baggage> getBaggageByReservation(Long reservationId) {
-        // Retrieve a list of baggage by the given reservationId
         return baggageRepository.getBaggageByReservation(reservationId);
     }
 
 
     public Baggage getBaggageById(Long baggageId) {
-        // Retrieve a baggage by the given baggageId
         return baggageRepository.findById(baggageId)
                 .orElseThrow(() -> new BaggageNotFoundException("Baggage not found with id: " + baggageId));
     }
+
+    public List<Baggage> getBaggageByQuery(CreateBaggageRequest query, Pageable pageable) {
+        Long reservationId = query.getReservationId();
+        if (reservationId == null) {
+            throw new IllegalArgumentException("Reservation ID cannot be null");
+        }
+
+        return baggageRepository.getBaggageByReservation(reservationId);
+    }
+
+    public static Specification<Baggage> createSpecification(CreateBaggageRequest request) {
+        return (root, criteriaQuery, criteriaBuilder) -> {
+            List<Predicate> predicates = new ArrayList<>();
+
+            predicates.add(criteriaBuilder.equal(root.get("reservationId"), request.getReservationId()));
+
+            criteriaQuery.where(criteriaBuilder.and(predicates.toArray(new Predicate[0])));
+
+            return null;
+        };
+    }
+
+
+
+    private static void addEqualPredicate(List<jakarta.persistence.criteria.Predicate> predicates, CriteriaBuilder criteriaBuilder, Path<?> path, Object value) {
+        if (value != null) {
+            predicates.add(criteriaBuilder.equal(path, value));
+        }
+    }
 }
+
+

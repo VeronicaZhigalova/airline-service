@@ -6,8 +6,8 @@ import com.awesomeorg.airlineservice.exceptions.BadRequestException;
 import com.awesomeorg.airlineservice.exceptions.ReservationNotFoundException;
 import com.awesomeorg.airlineservice.exceptions.SeatCapacityExceededException;
 import com.awesomeorg.airlineservice.exceptions.TicketNotFoundException;
-import com.awesomeorg.airlineservice.protocol.CreateReservationRequest;
 import com.awesomeorg.airlineservice.protocol.InternalReservationQuery;
+import com.awesomeorg.airlineservice.protocol.ReservationQuery;
 import com.awesomeorg.airlineservice.protocol.UpdateReservationRequest;
 import com.awesomeorg.airlineservice.repository.ReservationRepository;
 import com.awesomeorg.airlineservice.repository.specification.ReservationSpecification;
@@ -31,15 +31,15 @@ public class ReservationService {
     private final PassengerService passengerService;
     private final TicketService ticketService;
 
-        public Reservation createReservation(CreateReservationRequest request, Long passengerId) {
-            validateCreateReservation(request, passengerId);
+        public Reservation createReservation(ReservationQuery query, Long passengerId) {
+            validateCreateReservation(query, passengerId);
 
-            Reservation reservation = new Reservation(request, passengerId);
+            Reservation reservation = new Reservation(query, passengerId);
             return reservationRepository.save(reservation);
         }
 
 
-        private void validateCreateReservation(CreateReservationRequest request, Long passengerId) {
+        private void validateCreateReservation(ReservationQuery request, Long passengerId) {
             validateBlocklistedCustomer(passengerId);
             findAndValidateTicket(request.getTicketId(), request.getNumberOfCustomerSeats());
             checkExistingReservations(passengerId, request);
@@ -62,7 +62,7 @@ public class ReservationService {
         }
 
 
-    private void checkExistingReservations(Long passengerId, CreateReservationRequest request) {
+    private void checkExistingReservations(Long passengerId, ReservationQuery request) {
             InternalReservationQuery query = new InternalReservationQuery();
             query.setPassengerId(passengerId);
             query.setArrivalAirport(request.getArrivalAirport());
@@ -74,7 +74,7 @@ public class ReservationService {
             query.setFlightNumber(request.getFlightNumber());
             query.setDepartureDate(request.getDepartureDate());
 
-            Page<Reservation> reservationsPage = findReservations(query, Pageable.unpaged());
+            Page<Reservation> reservationsPage = findReservations(request, Pageable.unpaged());
 
             if (reservationsPage.getTotalElements() > 0) {
                 throw new BadRequestException(String.format("Passenger %d already has a reservation for the %s", passengerId, request.getFlightNumber()));
@@ -82,20 +82,19 @@ public class ReservationService {
         }
 
     public void deleteReservation(Long reservationId) {
-        // Check if reservation with the given reservationId exists
+
         Optional<Reservation> reservation = findReservation(reservationId);
 
-        // If not exists, delete the reservation
+
         if (reservation.isEmpty()) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Reservation not found with ID: " + reservationId);
         }
-
 
         reservationRepository.deleteById(reservationId);
     }
 
 
-        public Page<Reservation> findReservations(InternalReservationQuery query, Pageable pageRequest) {
+        public Page<Reservation> findReservations(ReservationQuery query, Pageable pageRequest) {
             Specification<Reservation> specification = ReservationSpecification.createSpecification(query);
             return reservationRepository.findAll(specification, pageRequest);
         }
@@ -131,7 +130,9 @@ public class ReservationService {
             reservation.setPassengerId(passengerId);
         }
 
+
         public List<Reservation> findReservation(String departure, String destination, LocalDate departureDate) {
             return reservationRepository.findReservationsByDepartureDestinationAndDate(departure, destination, departureDate);
         }
+
     }

@@ -3,7 +3,7 @@ package com.awesomeorg.airlineservice.service;
 import com.awesomeorg.airlineservice.entity.Ticket;
 import com.awesomeorg.airlineservice.exceptions.TicketAlreadyExistsException;
 import com.awesomeorg.airlineservice.exceptions.TicketNotFoundException;
-import com.awesomeorg.airlineservice.protocol.TicketQuery;
+import com.awesomeorg.airlineservice.protocol.CreateTicketRequest;
 import com.awesomeorg.airlineservice.protocol.UpdateTicketRequest;
 import com.awesomeorg.airlineservice.repository.TicketRepository;
 import lombok.RequiredArgsConstructor;
@@ -12,6 +12,8 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -27,29 +29,37 @@ public class TicketService {
         return ticketRepository.findById(ticketId);
     }
 
-    public Page<Ticket> findFreeTicket(TicketQuery query, PageRequest pageRequest) {
+    public Page<Ticket> findFreeTicket(CreateTicketRequest query, PageRequest pageRequest) {
         LocalDate dateOfFlight = query.getDateOfFlight();
         return ticketRepository.findFreeTicket(dateOfFlight, pageRequest);
     }
 
 
 
-    public Ticket createTicket(TicketQuery request) {
-        LocalDate dateOfPurchase = request.getDateOfPurchase();
+    public List<Ticket> createTickets(CreateTicketRequest request) {
+        LocalDate dateOfPurchase = LocalDate.now();
 
-        // Check if ticket already exists
-        final Page<Ticket> existingTickets = ticketRepository.findFreeTicket(dateOfPurchase, PageRequest.of(0, 25));
-        if (!existingTickets.isEmpty()) {
-            throw new TicketAlreadyExistsException("Ticket already exists at this date");
+        final Page<Ticket> existingTickets = ticketRepository.findFreeTicket(dateOfPurchase, PageRequest.of(0, request.getSeat()));
+
+        if (existingTickets.getContent().size() >= request.getSeat()) {
+            throw new TicketAlreadyExistsException("Tickets already exist at this date");
         }
 
-        // If not exists, create and save the new ticket
-        final Ticket ticket = new Ticket();
-        ticket.setDateOfFlight(request.getDateOfFlight());
-        return ticketRepository.save(ticket);
+        List<Ticket> newTickets = new ArrayList<>();
+
+        for (int i = 0; i < request.getSeat(); i++) {
+            Ticket ticket = new Ticket();
+            ticket.setDateOfFlight(request.getDateOfFlight());
+            ticket.setDateOfPurchase(request.getDateOfPurchase());
+            ticket.setDateOfReturn(request.getDateOfReturn());
+            ticket.setSeat(request.getSeat());
+            ticket.setPriceOfTicket(request.getPriceOfTicket());
+
+            newTickets.add(ticket);
+
     }
-
-
+        return ticketRepository.saveAll(newTickets);
+    }
 
 
     public Ticket updateTicket(Long ticketId, UpdateTicketRequest request) {
@@ -67,11 +77,11 @@ public class TicketService {
         }
     }
 
+
     public void deleteTicket(Long ticketId) {
-        // Check if ticket with the given ticketId exists
+
        Optional<Ticket> ticket = findTicketById(ticketId);
 
-        // If exists, delete the ticket
         if (ticket.isPresent()) {
             ticketRepository.deleteById(ticketId);
         } else {
