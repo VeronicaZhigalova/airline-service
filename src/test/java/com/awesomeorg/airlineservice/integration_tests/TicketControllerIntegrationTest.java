@@ -1,10 +1,8 @@
 package com.awesomeorg.airlineservice.integration_tests;
 
-
 import com.awesomeorg.airlineservice.AbstractIntegrationTest;
-import com.awesomeorg.airlineservice.entity.Ticket;
+import com.awesomeorg.airlineservice.protocol.CreateTicketRequest;
 import com.awesomeorg.airlineservice.protocol.UpdateTicketRequest;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.transaction.Transactional;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
@@ -12,10 +10,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
+import org.springframework.test.web.servlet.ResultMatcher;
 
 import java.time.LocalDate;
+
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
 
 
 @AutoConfigureMockMvc
@@ -23,32 +25,30 @@ public class TicketControllerIntegrationTest extends AbstractIntegrationTest {
     @Autowired
     private MockMvc mockMvc;
 
-    @Autowired
-    private ObjectMapper objectMapper;
-
     @Test
     @SneakyThrows
     @Transactional
     public void testCreateTicket() {
-        Ticket ticketToCreate = new Ticket();
-        ticketToCreate.setDateOfFlight(LocalDate.now().plusDays(5));
-        ticketToCreate.setDateOfPurchase(LocalDate.now());
-        ticketToCreate.setDateOfReturn(LocalDate.now().plusDays(10));
-        ticketToCreate.setPriceOfTicket((int) 1500.60);
-        ticketToCreate.setSeat(5);
+        CreateTicketRequest request = new CreateTicketRequest();
+        request.setDateOfFlight(LocalDate.now().plusDays(5));
+        request.setDateOfPurchase(LocalDate.now());
+        request.setDateOfReturn(LocalDate.now().plusDays(10));
+        request.setPriceOfTicket((int) 1500.60);
+        request.setSeat(1);
 
-        mockMvc.perform(MockMvcRequestBuilders.post("/tickets")
+        mockMvc.perform(post("/tickets")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(ticketToCreate)))
-                .andExpect(MockMvcResultMatchers.status().isCreated())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.id").exists())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.dateOfPurchase").value(LocalDate.now().toString()))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.dateOfFlight").value(ticketToCreate.getDateOfFlight().toString()))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.dateOfReturn").value(ticketToCreate.getDateOfReturn().toString()))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.seat").value(5))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.priceOfTicket").value(1500.0));
-
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isCreated())
+                .andExpect((ResultMatcher) jsonPath("$.id").exists())
+                .andExpect((ResultMatcher) jsonPath("$.dateOfPurchase").value(LocalDate.now().toString()))
+                .andExpect((ResultMatcher) jsonPath("$.dateOfFlight").value(request.getDateOfFlight().toString()))
+                .andExpect((ResultMatcher) jsonPath("$.dateOfReturn").value(request.getDateOfReturn().toString()))
+                .andExpect((ResultMatcher) jsonPath("$.seat").value(1))
+                .andExpect((ResultMatcher) jsonPath("$.priceOfTicket").value(1500.0));
     }
+
+
 
     @Test
     @SneakyThrows
@@ -57,11 +57,11 @@ public class TicketControllerIntegrationTest extends AbstractIntegrationTest {
         Long existingTicketId = 1L;
         UpdateTicketRequest updateRequest = new UpdateTicketRequest();
 
-        mockMvc.perform(MockMvcRequestBuilders.put("/tickets/{ticketId}", existingTicketId)
+        mockMvc.perform(put("/tickets/{ticketId}", existingTicketId)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(updateRequest)))
-                .andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.id").value(existingTicketId));
+                .andExpect(status().isOk())
+                .andExpect((ResultMatcher) jsonPath("$.id").value(existingTicketId));
 
     }
 
@@ -71,7 +71,7 @@ public class TicketControllerIntegrationTest extends AbstractIntegrationTest {
     public void testDeleteTicket() {
         Long existingTicketId = 1L;
 
-        mockMvc.perform(MockMvcRequestBuilders.delete("/tickets/{ticketId}", existingTicketId))
-                .andExpect(MockMvcResultMatchers.status().isNoContent());
+        mockMvc.perform(delete("/tickets/{ticketId}", existingTicketId))
+                .andExpect(status().isNoContent());
     }
 }

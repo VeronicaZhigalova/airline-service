@@ -13,6 +13,6 @@ import java.time.LocalDate;
 @Repository
 public interface TicketRepository extends JpaRepository<Ticket, Long> {
     @Query("SELECT t FROM tickets t WHERE t.dateOfPurchase = :dateOfPurchase")
-    Page<Ticket> findFreeTicket(@Param("dateOfPurchase") LocalDate dateOfPurchase,PageRequest pageRequest);
+    Page<Ticket> findFreeTicket(@Param("dateOfPurchase") LocalDate dateOfPurchase, PageRequest pageRequest);
 
 }

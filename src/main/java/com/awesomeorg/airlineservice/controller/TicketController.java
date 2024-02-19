@@ -44,7 +44,7 @@ public class TicketController {
             Ticket createdTicket = createdTickets.get(0);
             return ResponseEntity.status(HttpStatus.CREATED).body(createdTicket);
         } else {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            return ResponseEntity.badRequest().build();
         }
     }
 

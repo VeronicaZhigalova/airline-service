@@ -2,7 +2,6 @@ package com.awesomeorg.airlineservice.integration_tests;
 
 import com.awesomeorg.airlineservice.AbstractIntegrationTest;
 import com.awesomeorg.airlineservice.protocol.ReservationQuery;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.transaction.Transactional;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
@@ -24,16 +23,13 @@ public class ReservationControllerIntegrationTest extends AbstractIntegrationTes
     @Autowired
     private MockMvc mockMvc;
 
-    @Autowired
-    private ObjectMapper objectMapper;
-
     @Test
     @SneakyThrows
     @Transactional
     public void createReservationTest() {
         mockMvc.perform(MockMvcRequestBuilders.post("/reservations")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .header("passenger-id", 3L)
+                        .header("passenger-id", "3")
                         .content(objectMapper.writeValueAsString(
                                 new ReservationQuery("XYZ456", "LHR", "CDG",
                                         LocalDateTime.parse("2023-06-20T15:30:00"),
@@ -43,6 +39,7 @@ public class ReservationControllerIntegrationTest extends AbstractIntegrationTes
                                         LocalDate.parse("2023-06-25"), PENDING, 3L, 2L))))
                 .andExpect(MockMvcResultMatchers.status().isNotFound());
     }
+
 
     @Test
     @SneakyThrows

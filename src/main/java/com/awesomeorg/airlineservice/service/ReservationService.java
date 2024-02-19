@@ -135,4 +135,9 @@ public class ReservationService {
             return reservationRepository.findReservationsByDepartureDestinationAndDate(departure, destination, departureDate);
         }
 
+    public List<Reservation> findReservation(ReservationQuery query) {
+        Specification<Reservation> specification = ReservationSpecification.createSpecification(query);
+        return reservationRepository.findAll(specification);
+    }
+
     }

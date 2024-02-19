@@ -1,7 +1,7 @@
 package com.awesomeorg.airlineservice.service;
 
 import com.awesomeorg.airlineservice.entity.Ticket;
-import com.awesomeorg.airlineservice.exceptions.TicketAlreadyExistsException;
+import com.awesomeorg.airlineservice.exceptions.TicketAvailabilityExceededException;
 import com.awesomeorg.airlineservice.exceptions.TicketNotFoundException;
 import com.awesomeorg.airlineservice.protocol.CreateTicketRequest;
 import com.awesomeorg.airlineservice.protocol.UpdateTicketRequest;
@@ -31,7 +31,7 @@ public class TicketService {
 
     public Page<Ticket> findFreeTicket(CreateTicketRequest query, PageRequest pageRequest) {
         LocalDate dateOfFlight = query.getDateOfFlight();
-        return ticketRepository.findFreeTicket(dateOfFlight, pageRequest);
+        return ticketRepository.findFreeTicket(dateOfFlight,pageRequest);
     }
 
 
@@ -39,26 +39,38 @@ public class TicketService {
     public List<Ticket> createTickets(CreateTicketRequest request) {
         LocalDate dateOfPurchase = LocalDate.now();
 
-        final Page<Ticket> existingTickets = ticketRepository.findFreeTicket(dateOfPurchase, PageRequest.of(0, request.getSeat()));
+        final Page<Ticket> existingTickets = ticketRepository.findFreeTicket(dateOfPurchase, PageRequest.of(0, Integer.MAX_VALUE));
 
-        if (existingTickets.getContent().size() >= request.getSeat()) {
-            throw new TicketAlreadyExistsException("Tickets already exist at this date");
+        int availableSeats = calculateAvailableSeats(existingTickets.getContent().size(), 100);
+
+        if (availableSeats < request.getSeat()) {
+            throw new TicketAvailabilityExceededException("Not enough available seats for purchase");
         }
 
         List<Ticket> newTickets = new ArrayList<>();
 
         for (int i = 0; i < request.getSeat(); i++) {
+            if (i >= availableSeats) {
+                break;
+            }
+
             Ticket ticket = new Ticket();
             ticket.setDateOfFlight(request.getDateOfFlight());
-            ticket.setDateOfPurchase(request.getDateOfPurchase());
+            ticket.setDateOfPurchase(dateOfPurchase);
             ticket.setDateOfReturn(request.getDateOfReturn());
-            ticket.setSeat(request.getSeat());
+            ticket.setSeat(existingTickets.getContent().size() + i + 1);
             ticket.setPriceOfTicket(request.getPriceOfTicket());
 
             newTickets.add(ticket);
+        }
 
+        List<Ticket> savedTickets = ticketRepository.saveAll(newTickets);
+
+        return savedTickets;
     }
-        return ticketRepository.saveAll(newTickets);
+
+    private int calculateAvailableSeats(int existingTicketsCount, int totalSeatsLimit) {
+        return Math.max(totalSeatsLimit - existingTicketsCount, 0);
     }
 
 

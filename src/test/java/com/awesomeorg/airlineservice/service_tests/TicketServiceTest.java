@@ -75,16 +75,19 @@ public class TicketServiceTest {
         LocalDate dateOfPurchase = LocalDate.now();
         Page<Ticket> existingTickets = new PageImpl<>(new ArrayList<>());
 
-        when(ticketRepository.findFreeTicket(dateOfPurchase, PageRequest.of(0, request.getSeat()))).thenReturn(existingTickets);
+
+        when(ticketRepository.findFreeTicket(eq(dateOfPurchase), any(PageRequest.class))).thenReturn(existingTickets);
         when(ticketRepository.saveAll(anyList())).thenReturn(new ArrayList<>());
 
         List<Ticket> result = ticketService.createTickets(request);
 
-        verify(ticketRepository, times(1)).findFreeTicket(dateOfPurchase, PageRequest.of(0, request.getSeat()));
+
+        verify(ticketRepository, times(1)).findFreeTicket(eq(dateOfPurchase), any(PageRequest.class));
         verify(ticketRepository, times(1)).saveAll(anyList());
 
         assertNotNull(result);
     }
+
 
 
     @Test

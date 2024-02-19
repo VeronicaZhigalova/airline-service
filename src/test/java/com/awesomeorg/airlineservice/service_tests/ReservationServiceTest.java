@@ -5,9 +5,7 @@ import com.awesomeorg.airlineservice.exceptions.ReservationNotFoundException;
 import com.awesomeorg.airlineservice.protocol.ReservationQuery;
 import com.awesomeorg.airlineservice.protocol.UpdateReservationRequest;
 import com.awesomeorg.airlineservice.repository.ReservationRepository;
-import com.awesomeorg.airlineservice.service.PassengerService;
 import com.awesomeorg.airlineservice.service.ReservationService;
-import com.awesomeorg.airlineservice.service.TicketService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -33,11 +31,6 @@ public class ReservationServiceTest {
     @Mock
     private ReservationRepository reservationRepository;
 
-    @Mock
-    private PassengerService passengerService;
-
-    @Mock
-    private TicketService ticketService;
 
     @InjectMocks
     private ReservationService reservationService;

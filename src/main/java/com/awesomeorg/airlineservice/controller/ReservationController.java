@@ -4,6 +4,7 @@ import com.awesomeorg.airlineservice.entity.Reservation;
 import com.awesomeorg.airlineservice.protocol.ReservationQuery;
 import com.awesomeorg.airlineservice.service.ReservationService;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -34,18 +35,8 @@ public class ReservationController {
     }
 
     @GetMapping()
-    public ResponseEntity<List<Reservation>> searchReservations(@Valid ReservationQuery query) {
-        if (query == null) {
-            return ResponseEntity.badRequest().build();
-        }
-
-        List<Reservation> reservations;
-
-        if (query.getDeparture() != null && query.getDestination() != null && query.getDepartureDate() != null) {
-            reservations = reservationService.findReservation(query.getDeparture(), query.getDestination(), query.getDepartureDate());
-        } else {
-            return ResponseEntity.badRequest().build();
-        }
+    public ResponseEntity<List<Reservation>> searchReservations(@NotNull @Valid ReservationQuery query) {
+        List<Reservation> reservations = reservationService.findReservation(query);
         return ResponseEntity.ok().body(reservations);
     }
 }

@@ -1,5 +1,6 @@
 package com.awesomeorg.airlineservice;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
 import org.flywaydb.core.Flyway;
@@ -22,6 +23,9 @@ public abstract class AbstractIntegrationTest {
             .withDatabaseName("testdb")
             .withUsername("testuser")
             .withPassword("testpassword");
+
+    @Autowired
+    protected ObjectMapper objectMapper;
 
     @Autowired
     private Flyway flyway;

@@ -1,8 +1,8 @@
 package com.awesomeorg.airlineservice.integration_tests;
 
+import com.awesomeorg.airlineservice.AbstractIntegrationTest;
 import com.awesomeorg.airlineservice.protocol.CreatePassengerRequest;
 import com.awesomeorg.airlineservice.protocol.UpdatePassengerRequest;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.transaction.Transactional;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
@@ -18,13 +18,10 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 @SpringBootTest
 @AutoConfigureMockMvc
-public class PassengerControllerIntegrationTest {
+public class PassengerControllerIntegrationTest extends AbstractIntegrationTest {
 
     @Autowired
     private MockMvc mockMvc;
-
-    @Autowired
-    private ObjectMapper objectMapper;
 
     @Test
     @SneakyThrows
@@ -80,3 +77,4 @@ public class PassengerControllerIntegrationTest {
                 .andExpect(MockMvcResultMatchers.status().isNoContent());
     }
 }
+

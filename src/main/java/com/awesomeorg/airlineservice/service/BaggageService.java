@@ -5,15 +5,11 @@ import com.awesomeorg.airlineservice.exceptions.BaggageAlreadyExistsException;
 import com.awesomeorg.airlineservice.exceptions.BaggageNotFoundException;
 import com.awesomeorg.airlineservice.protocol.CreateBaggageRequest;
 import com.awesomeorg.airlineservice.repository.BaggageRepository;
-import jakarta.persistence.criteria.CriteriaBuilder;
-import jakarta.persistence.criteria.Path;
-import jakarta.persistence.criteria.Predicate;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.domain.Specification;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -39,11 +35,11 @@ public class BaggageService {
         }
 
     public void removeBaggage(Long baggageId) {
-
-        Baggage baggage = getBaggageById(baggageId);
-
+        Baggage baggage = baggageRepository.findById(baggageId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Baggage not found with id: " + baggageId));
         baggageRepository.deleteById(baggageId);
     }
+
 
     public List<Baggage> getBaggageByReservation(Long reservationId) {
         return baggageRepository.getBaggageByReservation(reservationId);
@@ -55,33 +51,13 @@ public class BaggageService {
                 .orElseThrow(() -> new BaggageNotFoundException("Baggage not found with id: " + baggageId));
     }
 
-    public List<Baggage> getBaggageByQuery(CreateBaggageRequest query, Pageable pageable) {
+    public List<Baggage> getBaggageByQuery(CreateBaggageRequest query) {
         Long reservationId = query.getReservationId();
         if (reservationId == null) {
             throw new IllegalArgumentException("Reservation ID cannot be null");
         }
 
         return baggageRepository.getBaggageByReservation(reservationId);
-    }
-
-    public static Specification<Baggage> createSpecification(CreateBaggageRequest request) {
-        return (root, criteriaQuery, criteriaBuilder) -> {
-            List<Predicate> predicates = new ArrayList<>();
-
-            predicates.add(criteriaBuilder.equal(root.get("reservationId"), request.getReservationId()));
-
-            criteriaQuery.where(criteriaBuilder.and(predicates.toArray(new Predicate[0])));
-
-            return null;
-        };
-    }
-
-
-
-    private static void addEqualPredicate(List<jakarta.persistence.criteria.Predicate> predicates, CriteriaBuilder criteriaBuilder, Path<?> path, Object value) {
-        if (value != null) {
-            predicates.add(criteriaBuilder.equal(path, value));
-        }
     }
 }
 

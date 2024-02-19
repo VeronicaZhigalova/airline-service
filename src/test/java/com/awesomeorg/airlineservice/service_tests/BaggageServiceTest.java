@@ -12,7 +12,6 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -73,27 +72,33 @@ public class BaggageServiceTest {
     void removeBaggage() {
         Long baggageId = 1L;
 
-        when(baggageRepository.findById(any())).thenReturn(Optional.of(new Baggage()));
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () ->
+                baggageService.removeBaggage(baggageId));
 
-        assertDoesNotThrow(() -> baggageService.removeBaggage(baggageId));
+        assertEquals(HttpStatus.NOT_FOUND, exception.getStatusCode());
+        assertEquals("Baggage not found with id: " + baggageId, exception.getReason());
 
-        verify(baggageRepository, times(1)).findById(any());
-        verify(baggageRepository, times(1)).deleteById(any());
+        verify(baggageRepository, never()).deleteById(eq(baggageId));
     }
+
+
 
     @Test
     void removeBaggage_BaggageNotFoundException() {
         long nonExistingBaggageId = 2L;
-
         when(baggageRepository.findById(nonExistingBaggageId)).thenReturn(Optional.empty());
 
         ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> {
             baggageService.removeBaggage(nonExistingBaggageId);
         });
 
+        verify(baggageRepository, times(1)).findById(nonExistingBaggageId);
+        verify(baggageRepository, never()).deleteById(anyLong());
+
         assertEquals(HttpStatus.NOT_FOUND, exception.getStatusCode());
         assertEquals("Baggage not found with id: " + nonExistingBaggageId, exception.getReason());
     }
+
 
 
     @Test
@@ -148,7 +153,7 @@ public class BaggageServiceTest {
 
         when(baggageRepository.getBaggageByReservation(anyLong())).thenReturn(expectedBaggages);
 
-        List<Baggage> result = baggageService.getBaggageByQuery(query, Pageable.unpaged());
+        List<Baggage> result = baggageService.getBaggageByQuery(query);
 
         assertEquals(expectedBaggages, result);
     }
